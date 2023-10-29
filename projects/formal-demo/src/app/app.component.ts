@@ -1,4 +1,8 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  effect,
+} from '@angular/core';
+import { form } from 'formal';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +10,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'formal-demo';
+  name = form('Hello');
+
+  constructor() {
+    effect(() => {
+      console.log('value', this.name());
+    })
+  }
 }

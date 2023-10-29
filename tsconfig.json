@@ -9,7 +9,7 @@
     "noImplicitOverride": true,
     "paths": {
       "formal": [
-        "dist/formal"
+        "projects/formal/src/public-api.ts"
       ]
     },
     "noPropertyAccessFromIndexSignature": true,
