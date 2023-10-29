@@ -1,1 +1,8 @@
-{{name()}}
+<form>
+  <!--TODO: there is some issue with floatLabel="auto" that causes ExpressionChangedAfterItWasChecked error. There requires a deeper dive into source code-->
+  <mat-form-field floatLabel="always">
+    <mat-label>Name</mat-label>
+    <input matInput [formField]="name">
+  </mat-form-field>
+</form>
+Name: {{name()}}
