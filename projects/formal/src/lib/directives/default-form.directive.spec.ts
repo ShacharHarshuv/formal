@@ -12,6 +12,7 @@ import {
   template: `
     <input type="text" [formField]="myForm">
     <textarea [formField]="myForm"></textarea>
+    <!--TODO(#1): add support for non-textual types: range, color, checkbox, radio, file, date, number -->
   `,
   imports: [
     DefaultFormDirective,
