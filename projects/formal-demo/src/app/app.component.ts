@@ -1,17 +1,12 @@
-import {
-  Component,
-  effect,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import {
   form,
-  DefaultFormDirective,
+  FORM_FIELD_DIRECTIVES,
 } from 'formal';
 import { MatInputModule } from '@angular/material/input';
 import { NgStyle } from '@angular/common';
-import {
-  FormControl,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-root',
@@ -21,14 +16,12 @@ import {
   imports: [
     MatInputModule,
     NgStyle,
-    DefaultFormDirective,
     ReactiveFormsModule,
+    MatCheckboxModule,
+    ...FORM_FIELD_DIRECTIVES,
   ],
 })
 export class AppComponent {
   name = form('initial');
-  fc = new FormControl('initial')
-
-  constructor() {
-  }
+  checked = form(true);
 }

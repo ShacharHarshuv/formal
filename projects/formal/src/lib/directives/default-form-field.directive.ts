@@ -9,23 +9,15 @@ import {
   Renderer2,
 } from '@angular/core';
 import { Form } from 'formal';
+import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
   selector: 'input:not([type=checkbox])[formField],textarea[formField]',
   standalone: true,
 })
-export class DefaultFormDirective {
+export class DefaultFormFieldDirective extends FormFieldDirective<string> {
   private readonly _elementRef = inject(ElementRef<HTMLInputElement>);
   private readonly _renderer = inject(Renderer2);
-  private readonly _form = signal<Form<string> | null>(null)
-
-  @Input({
-    alias: 'formField',
-    required: true,
-  })
-  set formInput(value: Form<string>) {
-    this._form.set(value);
-  }
 
   @HostListener('input', ['$event'])
   onInput($event: InputEvent): void {
@@ -33,6 +25,7 @@ export class DefaultFormDirective {
   }
 
   constructor() {
+    super();
     effect(() => {
       const form = this._form();
       if (!form) {

@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import {
   form,
-  DefaultFormDirective,
+  DefaultFormFieldDirective,
 } from 'formal';
 import {
   TestBed,
   ComponentFixture,
 } from '@angular/core/testing';
+import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
 @Component({
   template: `
@@ -15,7 +16,7 @@ import {
     <!--TODO(#1): add support for non-textual types: range, color, checkbox, radio, file, date, number -->
   `,
   imports: [
-    DefaultFormDirective,
+    DefaultFormFieldDirective,
   ],
   standalone: true,
 })
@@ -38,24 +39,23 @@ describe('DefaultFormDirective', () => {
 
   ['input', 'textarea'].forEach(tagName => {
     describe(tagName, () => {
-      it('should display initial value', () => {
-        const input = fixture.nativeElement.querySelector(tagName);
-        expect(input.value).toBe('initial');
-      });
-
-      it('should update form -> view', () => {
-        fixture.componentInstance.myForm.set('updated');
-        fixture.detectChanges();
-        const input = fixture.nativeElement.querySelector(tagName);
-        expect(input.value).toBe('updated');
-      });
-
-      it('should view -> form', () => {
-        const input = fixture.nativeElement.querySelector(tagName);
-        input.value = 'updated';
-        input.dispatchEvent(new Event('input'));
-        fixture.detectChanges();
-        expect(fixture.componentInstance.myForm()).toBe('updated');
+      testFormFieldDirectiveViewBinding({
+        initialValue: 'initial',
+        newValue: 'new',
+        form() {
+          return fixture.componentInstance.myForm;
+        },
+        viewValue() {
+          return fixture.nativeElement.querySelector(tagName).value;
+        },
+        fixture() {
+          return fixture;
+        },
+        setViewValue(value: string) {
+          const input =fixture.nativeElement.querySelector(tagName);
+          input.value = value;
+          input.dispatchEvent(new Event('input'));
+        }
       })
     });
   });
