@@ -26,12 +26,8 @@ export class DefaultFormFieldDirective extends FormFieldDirective<string> {
 
   constructor() {
     super();
-    effect(() => {
-      const form = this._form();
-      if (!form) {
-        return;
-      }
-      this._renderer.setProperty(this._elementRef.nativeElement, 'value', form());
-    })
+    this._onChange((value: string) => {
+      this._renderer.setProperty(this._elementRef.nativeElement, 'value', value);
+    });
   }
 }

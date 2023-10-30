@@ -1,11 +1,9 @@
 <form>
-  <!--TODO(#2): there is some issue with floatLabel="auto" that causes ExpressionChangedAfterItWasChecked error. There requires a deeper dive into source code-->
-  <mat-form-field floatLabel="always">
+  <mat-form-field>
     <mat-label>Name</mat-label>
     <input matInput [formField]="name">
   </mat-form-field>
   <section>
-    <!--TODO(#2): this also causes an ExpressionChangedAfterItHasBeenCheckedError. Will it happen with a custom control?-->
     <mat-checkbox [formField]="checked">Check me!</mat-checkbox>
   </section>
 </form>

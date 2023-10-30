@@ -29,6 +29,10 @@ import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-
     },
   ],
   standalone: true,
+  host: {
+    // to test for potential ExpressionChangedAfterItHasBeenCheckedError
+    '[class.custom-input]': 'value',
+  }
 })
 export class CustomInputComponent implements ControlValueAccessor {
   @Input() value: string = '';

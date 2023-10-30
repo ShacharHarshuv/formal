@@ -2,6 +2,7 @@ import {
   Directive,
   inject,
   effect,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormFieldDirective } from '../form-field.directive';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -23,11 +24,9 @@ export class ControlValueAccessorFormFieldDirective<T> extends FormFieldDirectiv
 
     // form -> vca
     effect(() => {
-      const form = this._form();
-      if (!form) {
-        return;
-      }
-      valueAccessor.writeValue(form());
+      this._onChange((value: T) => {
+        valueAccessor.writeValue(value);
+      });
     });
 
     // vca -> form
