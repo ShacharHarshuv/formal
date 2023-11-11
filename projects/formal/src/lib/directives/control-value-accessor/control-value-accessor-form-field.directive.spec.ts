@@ -59,6 +59,8 @@ export class CustomInputComponent implements ControlValueAccessor {
   }
 }
 
+const INITIAL_VALUE = 'initial';
+
 @Component({
   template: '<app-custom-input [formField]="myForm"></app-custom-input>',
   standalone: true,
@@ -68,7 +70,7 @@ export class CustomInputComponent implements ControlValueAccessor {
   ]
 })
 export class TestComponent {
-  readonly myForm = form('initial');
+  readonly myForm = form(INITIAL_VALUE);
 }
 
 describe('ControlValueAccessorFormFieldDirective', () => {
@@ -85,7 +87,7 @@ describe('ControlValueAccessorFormFieldDirective', () => {
   });
 
   testFormFieldDirectiveViewBinding({
-    initialValue: 'initial',
+    initialValue: INITIAL_VALUE,
     newValue: 'new',
     form() {
       return fixture.componentInstance.myForm;

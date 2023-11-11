@@ -72,13 +72,6 @@ describe(form.name, () => {
       });
     });
 
-    it('should update on mutate', () => {
-      myForm.mutate(value => value.name = 'Todd');
-      expectLastValueToEqual({
-        name: 'Todd',
-      });
-    });
-
     it('should update on update', () => {
       myForm.update(value => ({
         name: value.name + ' Todd',

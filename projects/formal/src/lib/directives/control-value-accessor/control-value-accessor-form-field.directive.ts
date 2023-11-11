@@ -23,10 +23,8 @@ export class ControlValueAccessorFormFieldDirective<T> extends FormFieldDirectiv
     }
 
     // form -> vca
-    effect(() => {
-      this._onChange((value: T) => {
-        valueAccessor.writeValue(value);
-      });
+    this._onChange((value: T) => {
+      valueAccessor.writeValue(value);
     });
 
     // vca -> form
