@@ -1,11 +1,10 @@
 <form>
   <mat-form-field>
     <mat-label>Name</mat-label>
-    <input matInput [formField]="name">
+    <input matInput [formField]="name" />
   </mat-form-field>
   <section>
     <mat-checkbox [formField]="checked">Check me!</mat-checkbox>
   </section>
 </form>
-Name: {{name()}}
-Checked: {{checked()}}
+Name: {{ name() }} Checked: {{ checked() }}

@@ -1,17 +1,12 @@
-import {
-  signal,
-  Input,
-  Directive,
-  effect,
-} from '@angular/core';
-import { Form } from 'formal';
+import { signal, Input, Directive, effect } from '@angular/core';
+import { Form, FormValue } from 'formal';
 
 /**
  * Generic class for any directive that plugs into the formField input
  * */
 @Directive()
-export abstract class FormFieldDirective<T> {
-  protected readonly _form = signal<Form<T> | null>(null)
+export abstract class FormFieldDirective<T extends FormValue> {
+  protected readonly _form = signal<Form<T> | null>(null);
   private _subscribers: ((value: T) => void)[] = [];
   private _lastValue: T | null = null;
 
@@ -42,10 +37,10 @@ export abstract class FormFieldDirective<T> {
     }
     this._lastValue = value;
 
-    this._subscribers.forEach(subscriber => {
+    this._subscribers.forEach((subscriber) => {
       subscriber(value);
     });
-  };
+  }
 
   protected _onChange(subscriber: (value: T) => void) {
     this._subscribers.push(subscriber);

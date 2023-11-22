@@ -1,21 +1,8 @@
 import { ControlValueAccessorFormFieldDirective } from './control-value-accessor-form-field.directive';
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
-import {
-  forwardRef,
-  Component,
-  Input,
-} from '@angular/core';
-import {
-  form,
-  FORM_FIELD_DIRECTIVES,
-} from 'formal';
-import {
-  TestBed,
-  ComponentFixture,
-} from '@angular/core/testing';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { forwardRef, Component, Input } from '@angular/core';
+import { form, FORM_FIELD_DIRECTIVES } from 'formal';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-view-binding.spec';
 
 @Component({
@@ -32,7 +19,7 @@ import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-
   host: {
     // to test for potential ExpressionChangedAfterItHasBeenCheckedError
     '[class.custom-input]': 'value',
-  }
+  },
 })
 export class CustomInputComponent implements ControlValueAccessor {
   @Input() value: string = '';
@@ -64,10 +51,7 @@ const INITIAL_VALUE = 'initial';
 @Component({
   template: '<app-custom-input [formField]="myForm"></app-custom-input>',
   standalone: true,
-  imports: [
-    CustomInputComponent,
-    ...FORM_FIELD_DIRECTIVES,
-  ]
+  imports: [CustomInputComponent, ...FORM_FIELD_DIRECTIVES],
 })
 export class TestComponent {
   readonly myForm = form(INITIAL_VALUE);
@@ -78,9 +62,7 @@ describe('ControlValueAccessorFormFieldDirective', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        TestComponent,
-      ]
+      imports: [TestComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
@@ -99,9 +81,9 @@ describe('ControlValueAccessorFormFieldDirective', () => {
       return fixture;
     },
     setViewValue(value: string) {
-      const input =fixture.nativeElement.querySelector('input');
+      const input = fixture.nativeElement.querySelector('input');
       input.value = value;
       input.dispatchEvent(new Event('input'));
-    }
-  })
+    },
+  });
 });

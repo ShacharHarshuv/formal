@@ -7,7 +7,10 @@ import {
 function isBuiltInAccessor(valueAccessor: ControlValueAccessor): boolean {
   // Check if a given value accessor is an instance of a class that directly extends
   // `BuiltInControlValueAccessor` one.
-  return Object.getPrototypeOf(valueAccessor.constructor).name === 'BuiltInControlValueAccessor';
+  return (
+    Object.getPrototypeOf(valueAccessor.constructor).name ===
+    'BuiltInControlValueAccessor'
+  );
 }
 
 export function selectValueAccessor(
@@ -19,7 +22,7 @@ export function selectValueAccessor(
 
   if (!Array.isArray(valueAccessors)) {
     throw new Error(
-      `${valueAccessors} is not a valid CONTROL_VALUE_ACCESSOR value. It needs to be an array.`
+      `${valueAccessors} is not a valid CONTROL_VALUE_ACCESSOR value. It needs to be an array.`,
     );
   }
 
@@ -32,12 +35,16 @@ export function selectValueAccessor(
       defaultAccessor = v;
     } else if (isBuiltInAccessor(v)) {
       if (builtinAccessor) {
-        throw new Error('More than one built-in value accessor matches form control');
+        throw new Error(
+          'More than one built-in value accessor matches form control',
+        );
       }
       builtinAccessor = v;
     } else {
       if (customAccessor) {
-        throw new Error('More than one custom value accessor matches form control');
+        throw new Error(
+          'More than one custom value accessor matches form control',
+        );
       }
       customAccessor = v;
     }

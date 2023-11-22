@@ -1,8 +1,5 @@
 import { Component } from '@angular/core';
-import {
-  form,
-  FORM_FIELD_DIRECTIVES,
-} from 'formal';
+import { form, FORM_FIELD_DIRECTIVES } from 'formal';
 import { MatInputModule } from '@angular/material/input';
 import { NgStyle } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
