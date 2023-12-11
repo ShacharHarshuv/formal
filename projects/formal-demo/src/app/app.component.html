@@ -1,10 +1,15 @@
 <form>
-  <mat-form-field>
-    <mat-label>Name</mat-label>
-    <input matInput [formField]="name" />
-  </mat-form-field>
-  <section>
-    <mat-checkbox [formField]="checked">Check me!</mat-checkbox>
-  </section>
+  <h2>Formal Demo</h2>
+  <label>Name</label>
+  <input [formField]="form.fields().name" />
+  <label>Age</label>
+  <input type="number" [formField]="form.fields().age" />
+  <!--TODO: support select-->
+<!--  <label>Gender</label>-->
+<!--  <select [formField]="form.fields().gender">-->
+<!--    <option value="male">Male</option>-->
+<!--    <option value="female">Female</option>-->
+<!--  </select>-->
+  <button (click)="save()" type="submit">Save</button>
+  {{form() | json}}
 </form>
-Name: {{ name() }} Checked: {{ checked() }}

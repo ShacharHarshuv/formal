@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
-import { form, FORM_FIELD_DIRECTIVES } from 'formal';
-import { MatInputModule } from '@angular/material/input';
-import { NgStyle } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  form,
+  FORM_FIELD_DIRECTIVES,
+} from 'formal';
+import {
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -11,14 +14,19 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   styleUrls: ['./app.component.scss'],
   standalone: true,
   imports: [
-    MatInputModule,
-    NgStyle,
     ReactiveFormsModule,
-    MatCheckboxModule,
     ...FORM_FIELD_DIRECTIVES,
+    JsonPipe,
   ],
 })
 export class AppComponent {
-  name = form('initial');
-  checked = form(true);
+  form = form({
+    name: 'Hello',
+    age: 10,
+    // gender: 'male',
+  });
+
+  save() {
+    alert(JSON.stringify(this.form(), null, 2));
+  }
 }

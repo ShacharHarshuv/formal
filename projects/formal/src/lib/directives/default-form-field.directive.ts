@@ -1,21 +1,17 @@
 import {
   Directive,
-  Input,
   HostListener,
-  signal,
-  effect,
   ElementRef,
   inject,
   Renderer2,
 } from '@angular/core';
-import { Form } from 'formal';
 import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
   selector: 'input:not([type=checkbox])[formField],textarea[formField]',
   standalone: true,
 })
-export class DefaultFormFieldDirective extends FormFieldDirective<string> {
+export class DefaultFormFieldDirective extends FormFieldDirective<string | number> {
   private readonly _elementRef = inject(ElementRef<HTMLInputElement>);
   private readonly _renderer = inject(Renderer2);
 
@@ -26,7 +22,7 @@ export class DefaultFormFieldDirective extends FormFieldDirective<string> {
 
   constructor() {
     super();
-    this._onChange((value: string) => {
+    this._onChange((value: string | number) => {
       this._renderer.setProperty(
         this._elementRef.nativeElement,
         'value',

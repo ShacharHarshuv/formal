@@ -1,34 +1,51 @@
-import { Directive, inject, effect, ChangeDetectorRef } from '@angular/core';
+import {
+  Directive,
+  inject,
+  Optional,
+  Self,
+  Inject,
+  forwardRef,
+} from '@angular/core';
 import { FormFieldDirective } from '../form-field.directive';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor,
+  NgControl,
+} from '@angular/forms';
 import { selectValueAccessor } from './select-value-accessor';
 import { FormValue } from '../../form/form';
 
 @Directive({
   selector: '[formField]',
   standalone: true,
+  providers: [
+    {
+      provide: NgControl,
+      useExisting: forwardRef(() => ControlValueAccessorFormFieldDirective),
+    }
+  ]
 })
 export class ControlValueAccessorFormFieldDirective<
   T extends FormValue,
 > extends FormFieldDirective<T> {
-  constructor() {
+  valueAccessor: ControlValueAccessor | null = null;
+
+  constructor(
+    @Optional() @Self() @Inject(NG_VALUE_ACCESSOR) valueAccessors: ControlValueAccessor[],
+  ) {
     super();
 
-    const valueAccessor = selectValueAccessor(
-      inject(NG_VALUE_ACCESSOR, { optional: true }),
+    this.valueAccessor = selectValueAccessor(
+      inject(NG_VALUE_ACCESSOR, { optional: true, self: true }),
     );
-
-    if (!valueAccessor) {
-      return;
-    }
 
     // form -> vca
     this._onChange((value: T) => {
-      valueAccessor.writeValue(value);
+      this.valueAccessor?.writeValue(value);
     });
 
     // vca -> form
-    valueAccessor.registerOnChange((value: T) => {
+    this.valueAccessor?.registerOnChange((value: T) => {
       this._form()?.set(value);
     });
   }
