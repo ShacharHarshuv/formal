@@ -30,11 +30,8 @@ export class ControlValueAccessorFormFieldDirective<
 > extends FormFieldDirective<T> {
   valueAccessor: ControlValueAccessor | null = null;
 
-  constructor(
-    @Optional() @Self() @Inject(NG_VALUE_ACCESSOR) valueAccessors: ControlValueAccessor[],
-  ) {
+  constructor() {
     super();
-
     this.valueAccessor = selectValueAccessor(
       inject(NG_VALUE_ACCESSOR, { optional: true, self: true }),
     );

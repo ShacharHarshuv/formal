@@ -1,8 +1,7 @@
-import { ControlValueAccessorFormFieldDirective } from './control-value-accessor-form-field.directive';
+import { Component, forwardRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { forwardRef, Component, Input } from '@angular/core';
 import { form, FORM_FIELD_DIRECTIVES } from 'formal';
-import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-view-binding.spec';
 
 @Component({
@@ -22,7 +21,7 @@ import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-
   },
 })
 export class CustomInputComponent implements ControlValueAccessor {
-  @Input() value: string = '';
+  value: string = '';
   onChange = (value: any) => {};
   onTouched = () => {};
 
