@@ -2,19 +2,21 @@ import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-custom-number-field',
+  selector: 'app-custom-value-accessor-number-field',
   standalone: true,
   imports: [],
-  templateUrl: './custom-number-field.component.html',
+  templateUrl: './custom-value-accessor-number-field.component.html',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CustomNumberFieldComponent),
+      useExisting: forwardRef(() => CustomValueAccessorNumberFieldComponent),
       multi: true,
     },
   ],
 })
-export class CustomNumberFieldComponent implements ControlValueAccessor {
+export class CustomValueAccessorNumberFieldComponent
+  implements ControlValueAccessor
+{
   value: number = 0;
 
   onChange: any = () => {};

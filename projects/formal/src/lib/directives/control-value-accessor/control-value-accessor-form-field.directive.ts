@@ -37,7 +37,11 @@ export class ControlValueAccessorFormFieldDirective<
     );
 
     effect(() => {
-      const currentValue = this._form()?.();
+      if (!this.form) {
+        return;
+      }
+
+      const currentValue = this.form();
       currentValue && this._valueAccessor()?.writeValue(currentValue);
 
       // form -> vca
@@ -47,7 +51,7 @@ export class ControlValueAccessorFormFieldDirective<
 
       // vca -> form
       this._valueAccessor()?.registerOnChange((value: T) => {
-        this._form()?.set(value);
+        this.form?.set(value);
       });
     });
   }

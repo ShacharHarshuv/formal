@@ -1,4 +1,4 @@
-import { Directive, effect, Input, signal } from '@angular/core';
+import { Directive, effect, input } from '@angular/core';
 import { Form, FormValue } from 'formal';
 
 /**
@@ -6,28 +6,23 @@ import { Form, FormValue } from 'formal';
  * */
 @Directive()
 export abstract class FormFieldDirective<T extends FormValue> {
-  protected readonly _form = signal<Form<T> | null>(null);
   private _subscribers: ((value: T) => void)[] = [];
   private _lastValue: T | null = null;
 
-  @Input({
+  readonly _formInput = input<Form<T> | null>(null, {
     alias: 'formField',
-    required: true,
-  })
-  set formInput(form: Form<T>) {
-    this._form.set(form);
-    // Initial value change necessary to avoid ExpressionChangedAfterItHasBeenCheckedError
-    this._handleChange(form());
+  });
+
+  get form() {
+    return this._formInput();
   }
 
   protected constructor() {
     effect(() => {
-      const form = this._form();
-      if (!form) {
+      if (!this.form) {
         return;
       }
-
-      this._handleChange(form());
+      this._handleChange(this.form());
     });
   }
 

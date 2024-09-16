@@ -6,7 +6,8 @@ import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { form, FORM_FIELD_DIRECTIVES } from 'formal';
-import { CustomNumberFieldComponent } from '../custom-number-field/custom-number-field.component';
+import { CustomFormFieldNumberComponent } from '../custom-form-field-number/custom-form-field-number.component';
+import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accessor-number-field/custom-value-accessor-number-field.component';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ import { CustomNumberFieldComponent } from '../custom-number-field/custom-number
     MatSelect,
     MatOption,
     ReactiveFormsModule,
-    CustomNumberFieldComponent,
+    CustomValueAccessorNumberFieldComponent,
+    CustomFormFieldNumberComponent,
   ],
 })
 export class AppComponent {
