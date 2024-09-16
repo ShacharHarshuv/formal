@@ -1,6 +1,5 @@
-import { signal, Input, Directive, effect } from '@angular/core';
+import { Directive, effect, Input, signal } from '@angular/core';
 import { Form, FormValue } from 'formal';
-import { NgControl } from '@angular/forms';
 
 /**
  * Generic class for any directive that plugs into the formField input

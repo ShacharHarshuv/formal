@@ -1,19 +1,12 @@
+import { Directive, effect, forwardRef, inject, signal } from '@angular/core';
 import {
-  Directive,
-  inject,
-  Optional,
-  Self,
-  Inject,
-  forwardRef,
-} from '@angular/core';
-import { FormFieldDirective } from '../form-field.directive';
-import {
-  NG_VALUE_ACCESSOR,
   ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
   NgControl,
 } from '@angular/forms';
-import { selectValueAccessor } from './select-value-accessor';
 import { FormValue } from '../../form/form';
+import { FormFieldDirective } from '../form-field.directive';
+import { selectValueAccessor } from './select-value-accessor';
 
 @Directive({
   selector: '[formField]',
@@ -22,28 +15,40 @@ import { FormValue } from '../../form/form';
     {
       provide: NgControl,
       useExisting: forwardRef(() => ControlValueAccessorFormFieldDirective),
-    }
-  ]
+    },
+  ],
 })
 export class ControlValueAccessorFormFieldDirective<
   T extends FormValue,
 > extends FormFieldDirective<T> {
-  valueAccessor: ControlValueAccessor | null = null;
+  private _valueAccessor = signal<ControlValueAccessor | null>(null);
+
+  set valueAccessor(value: ControlValueAccessor | null) {
+    this._valueAccessor.set(value);
+  }
 
   constructor() {
     super();
     this.valueAccessor = selectValueAccessor(
-      inject(NG_VALUE_ACCESSOR, { optional: true, self: true }),
+      inject(NG_VALUE_ACCESSOR, {
+        optional: true,
+        self: true,
+      }),
     );
 
-    // form -> vca
-    this._onChange((value: T) => {
-      this.valueAccessor?.writeValue(value);
-    });
+    effect(() => {
+      const currentValue = this._form()?.();
+      currentValue && this._valueAccessor()?.writeValue(currentValue);
 
-    // vca -> form
-    this.valueAccessor?.registerOnChange((value: T) => {
-      this._form()?.set(value);
+      // form -> vca
+      this._onChange((value: T) => {
+        this._valueAccessor()?.writeValue(value);
+      });
+
+      // vca -> form
+      this._valueAccessor()?.registerOnChange((value: T) => {
+        this._form()?.set(value);
+      });
     });
   }
 }

@@ -1,15 +1,53 @@
+<h1>Formal Demo</h1>
+
+<h2>Native Controls</h2>
 <form>
-  <h2>Formal Demo</h2>
   <label>Name</label>
   <input [formField]="form.fields().name" />
   <label>Age</label>
-  <input type="number" [formField]="form.fields().age" />
+  <input [formField]="form.fields().age" type="number" />
   <!--TODO: support select-->
-<!--  <label>Gender</label>-->
-<!--  <select [formField]="form.fields().gender">-->
-<!--    <option value="male">Male</option>-->
-<!--    <option value="female">Female</option>-->
-<!--  </select>-->
+  <!--  <label>Gender</label>-->
+  <!--  <select [formField]="form.fields().gender">-->
+  <!--    <option value="male">Male</option>-->
+  <!--    <option value="female">Female</option>-->
+  <!--  </select>-->
   <button (click)="save()" type="submit">Save</button>
-  {{form() | json}}
+  {{ form() | json }}
 </form>
+
+<h2>Angular Material (i.e. CVS interop)</h2>
+<form>
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input
+      [formField]="form.fields().name"
+      matInput
+      placeholder="Ex. John Smith"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Age</mat-label>
+    <input
+      [formField]="form.fields().age"
+      matInput
+      placeholder="Ex. 42"
+      type="number"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Gender</mat-label>
+    <mat-select [formField]="form.fields().gender">
+      <mat-option [value]="'male'">Male</mat-option>
+      <mat-option [value]="'female'">Female</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button (click)="save()" mat-raised-button type="submit">Save</button>
+</form>
+
+<pre
+  >{{ form() | json }}
+</pre>
+
+<h2>Custom CVA</h2>
+<app-custom-number-field [formField]="form.fields().age" />

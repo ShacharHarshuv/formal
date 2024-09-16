@@ -5,3 +5,8 @@ form {
   flex-direction: column;
   gap: 10px;
 }
+
+:host {
+  display: block;
+  padding: 30px;
+}
