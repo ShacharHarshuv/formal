@@ -239,6 +239,64 @@ describe(form.name, () => {
       });
     });
 
+    describe('field property should be typed correctly', () => {
+      it('primitive values', () => {
+        const myForm = form({
+          name: 'Sweeney',
+          age: 42,
+        });
+
+        expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
+          name: Form<string>;
+          age: Form<number>;
+        }>();
+      });
+
+      it('nested objects / arrays', () => {
+        const myForm = form({
+          name: 'Sweeney',
+          address: {
+            street: 'Fleet',
+            number: 123,
+          },
+          kids: ['Joanna', 'Toby'],
+        });
+
+        expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
+          name: Form<string>;
+          address: Form<{
+            street: string;
+            number: number;
+          }>;
+          kids: Form<string[]>;
+        }>();
+      });
+
+      it('only optional properties', () => {
+        const myForm = form<{
+          name?: string;
+        }>({});
+
+        expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
+          name?: Form<string>;
+        }>();
+      });
+
+      it('optional properties', () => {
+        const myForm = form<{
+          name: string;
+          partner?: string;
+        }>({
+          name: 'Sweeney',
+        });
+
+        expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
+          name: Form<string>;
+          partner?: Form<string>;
+        }>();
+      });
+    });
+
     it('should have field property for objects', () => {
       expect(myForm.fields()).toEqual({
         name: jasmine.anything(),
@@ -333,9 +391,9 @@ describe(form.name, () => {
 
     describe('fields change', () => {
       it("shouldn't change if fields haven't change", () => {
-        const formSpy = signalSpy(myForm.fields, 'fields');
+        const fieldsSpy = signalSpy(myForm.fields, 'fields');
 
-        formSpy.expectLastValueToEqual(jasmine.anything());
+        fieldsSpy.expectLastValueToEqual(jasmine.anything());
 
         myForm.set({
           name: 'Todd',
@@ -346,7 +404,7 @@ describe(form.name, () => {
           },
         });
 
-        formSpy.expectValueToNotChange();
+        fieldsSpy.expectValueToNotChange();
       });
 
       it('should be changed if fields have changed', () => {

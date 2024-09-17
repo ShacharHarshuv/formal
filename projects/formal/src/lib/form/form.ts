@@ -1,4 +1,5 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
+import { OptionalKeys, RequiredKeys } from 'expect-type';
 import { mapValues } from 'lodash';
 
 type Primitive = string | number | boolean | null | undefined;
@@ -11,16 +12,24 @@ export type FormValue =
     }
   | FormValue[];
 
-export type Form<T extends FormValue> = WritableSignal<T> &
-  (T extends Array<infer U>
+const FORM = Symbol('FORM');
+
+export type Form<T extends FormValue> = WritableSignal<T> & {
+  [FORM]: unknown;
+} & (T extends Array<infer U>
     ? {
         // @ts-ignore
         fields: Signal<Form<U>[]>;
       }
     : T extends object
       ? {
-          // @ts-ignore
-          fields: Signal<{ [K in keyof T]: Form<T[K]> }>;
+          fields: Signal<
+            // @ts-ignore
+            { [K in RequiredKeys<T>]: Form<T[K]> } & {
+              // @ts-ignore
+              [K in OptionalKeys<T>]?: Form<Required<T>[K]>;
+            }
+          >;
         }
       : {});
 
