@@ -117,6 +117,10 @@ function formRecord<
   };
 }
 
+export function form(initialValue: string): Form<string>;
+export function form(initialValue: number): Form<number>;
+export function form(initialValue: boolean): Form<boolean>;
+export function form<T extends FormValue>(initialValue: T): Form<T>;
 export function form<T extends FormValue>(initialValue: T): Form<T> {
   if (typeof initialValue !== 'object' || initialValue === null) {
     return signal(initialValue) as any; // not sure why type inference didn't work as expected here

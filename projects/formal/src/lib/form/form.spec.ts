@@ -1,20 +1,7 @@
-import {
-  form,
-  Form,
-  FormValue,
-} from './form';
-import {
-  effect,
-  Injector,
-  computed,
-  Component,
-  Signal,
-} from '@angular/core';
-import {
-  TestBed,
-  ComponentFixture,
-} from '@angular/core/testing';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Component, effect, Signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { expectTypeOf } from 'expect-type';
+import { form, Form, FormValue } from './form';
 import Expected = jasmine.Expected;
 
 export function signalSpy<T>(signal: Signal<T>, name: string) {
@@ -34,7 +21,7 @@ export function signalSpy<T>(signal: Signal<T>, name: string) {
     expect(changeSpy.calls.count()).toEqual(callsCount);
   }
 
-  @Component({template: ''})
+  @Component({ template: '' })
   class MyComponent {
     constructor() {
       effect(() => {
@@ -63,8 +50,91 @@ describe(form.name, () => {
     });
   });
 
+  describe('should infer value type', () => {
+    it('string', () => {
+      const myForm = form('Sweeney');
+      expectTypeOf(myForm()).toEqualTypeOf<string>();
+      expectTypeOf(myForm.set).parameter(0).toEqualTypeOf<string>();
+      expectTypeOf(myForm.update)
+        .parameter(0)
+        .toEqualTypeOf<(value: string) => string>();
+    });
+
+    it('union', () => {
+      const myForm = form<'blue' | 'red'>('blue');
+      expectTypeOf(myForm()).toEqualTypeOf<'blue' | 'red'>();
+      expectTypeOf(myForm.set).parameter(0).toEqualTypeOf<'blue' | 'red'>();
+      expectTypeOf(myForm.update)
+        .parameter(0)
+        .toEqualTypeOf<(value: 'blue' | 'red') => 'blue' | 'red'>();
+    });
+
+    it('number', () => {
+      const myForm = form(42);
+      expectTypeOf(myForm()).toEqualTypeOf<number>();
+      expectTypeOf(myForm.set).parameter(0).toEqualTypeOf<number>();
+      expectTypeOf(myForm.update)
+        .parameter(0)
+        .toEqualTypeOf<(value: number) => number>();
+    });
+
+    it('boolean', () => {
+      const myForm = form(true);
+      expectTypeOf(myForm()).toEqualTypeOf<boolean>();
+      expectTypeOf(myForm.set).parameter(0).toEqualTypeOf<boolean>();
+      expectTypeOf(myForm.update)
+        .parameter(0)
+        .toEqualTypeOf<(value: boolean) => boolean>();
+    });
+
+    it('object', () => {
+      const myForm = form({
+        name: 'Sweeney',
+        age: 42,
+      });
+
+      expectTypeOf(myForm()).toEqualTypeOf<{
+        name: string;
+        age: number;
+      }>();
+      expectTypeOf(myForm.set).parameter(0).toEqualTypeOf<{
+        name: string;
+        age: number;
+      }>();
+      expectTypeOf(myForm.update).parameter(0).toEqualTypeOf<
+        (value: { name: string; age: number }) => {
+          name: string;
+          age: number;
+        }
+      >();
+    });
+
+    it('array', () => {
+      const myForm = form(['one', 'two', 'three']);
+      expectTypeOf(myForm()).toEqualTypeOf<string[]>();
+      expectTypeOf(myForm.set).parameter(0).toEqualTypeOf<string[]>();
+      expectTypeOf(myForm.update)
+        .parameter(0)
+        .toEqualTypeOf<(value: string[]) => string[]>();
+    });
+
+    it('array with different types', () => {
+      const myForm = form(['one', 2 /*, true*/]); // TODO: booleans are currently not inferred correctly. See https://github.com/microsoft/TypeScript/issues/59993
+      expectTypeOf(myForm()).toEqualTypeOf<
+        (string | number) /* | boolean*/[]
+      >();
+      expectTypeOf(myForm.update)
+        .parameter(0)
+        .toEqualTypeOf<
+          (
+            value: (string | number) /* | boolean*/[],
+          ) => (string | number) /* | boolean*/[]
+        >();
+    });
+  });
+
   describe('mutating', () => {
-    test({
+    test('primitive', {
       initialValue: 'Sweeney',
       newValue: 'Todd',
       update: {
@@ -73,7 +143,7 @@ describe(form.name, () => {
       },
     });
 
-    test({
+    test('object', {
       initialValue: {
         name: 'Sweeney',
         age: 42,
@@ -94,41 +164,55 @@ describe(form.name, () => {
       },
     });
 
-    function test<T extends FormValue>({
-      initialValue,
-      newValue,
-      update,
-    }: {
-      initialValue: T;
-      newValue: T;
+    test('array', {
+      initialValue: ['one', 'two', 'three'],
+      newValue: ['one', 'two', 'three', 'four'],
       update: {
-        fn: (value: T) => T;
-        expected: T;
-      };
-    }) {
-      let myForm: Form<any>;
-      let expectLastValueToEqual: SignalSpy<T>['expectLastValueToEqual'];
+        fn: (value: string[]) => [...value, 'four'],
+        expected: ['one', 'two', 'three', 'four'],
+      },
+    });
 
-      beforeEach(() => {
-        myForm = form(initialValue);
-        expectLastValueToEqual = signalSpy(
-          myForm,
-          'myForm',
-        ).expectLastValueToEqual;
-      });
+    function test<T extends FormValue>(
+      description: string,
+      {
+        initialValue,
+        newValue,
+        update,
+      }: {
+        initialValue: T;
+        newValue: T;
+        update: {
+          fn: (value: T) => T;
+          expected: T;
+        };
+      },
+    ) {
+      describe(description, () => {
+        let myForm: Form<any>;
+        let expectLastValueToEqual: SignalSpy<T>['expectLastValueToEqual'];
 
-      it('should have initial value', () => {
-        expectLastValueToEqual(initialValue);
-      });
+        beforeEach(() => {
+          myForm = form(initialValue);
+          expectLastValueToEqual = signalSpy(
+            myForm,
+            'myForm',
+          ).expectLastValueToEqual;
+        });
 
-      it('should update on set', () => {
-        myForm.set(newValue);
-        expectLastValueToEqual(newValue);
-      });
+        it('should have initial value', () => {
+          expectLastValueToEqual(initialValue);
+        });
 
-      it('should update on update', () => {
-        myForm.update(update.fn);
-        expectLastValueToEqual(update.expected);
+        it('should update on set', () => {
+          myForm.set(newValue);
+          expectLastValueToEqual(newValue);
+        });
+
+        it('should update on update', () => {
+          myForm.update(update.fn);
+          expectLastValueToEqual(update.expected);
+        });
       });
     }
   });
@@ -293,7 +377,7 @@ describe(form.name, () => {
           address: {
             street: 'Fleez',
             number: 321,
-          }
+          },
         });
 
         fieldsSpy.expectLastValueToEqual({
