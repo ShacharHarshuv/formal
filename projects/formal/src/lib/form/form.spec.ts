@@ -9,6 +9,14 @@ export function signalSpy<T>(signal: Signal<T>, name: string) {
 
   let changeSpy = jasmine.createSpy(`${name} spy`);
 
+  function lastValue() {
+    fixture.detectChanges();
+    if (signal() !== changeSpy.calls.mostRecent().args[0]) {
+      fail(`Value change for signal "${name}" have not been notified`);
+    }
+    return signal();
+  }
+
   function expectLastValueToEqual(value: Expected<T>) {
     fixture.detectChanges();
     expect(signal()).toEqual(value);
@@ -17,8 +25,14 @@ export function signalSpy<T>(signal: Signal<T>, name: string) {
 
   function expectValueToNotChange() {
     const callsCount = changeSpy.calls.count();
+    const currentValue = signal();
     fixture.detectChanges();
-    expect(changeSpy.calls.count()).toEqual(callsCount);
+    if (changeSpy.calls.count() > callsCount) {
+      fail(`Expected signal "${name}" to not have changed`);
+    }
+    if (signal() !== currentValue) {
+      fail(`Value of signal "${name}" is different than the previous value`);
+    }
   }
 
   @Component({ template: '' })
@@ -35,6 +49,7 @@ export function signalSpy<T>(signal: Signal<T>, name: string) {
   return {
     expectLastValueToEqual,
     expectValueToNotChange,
+    lastValue,
   };
 }
 
@@ -87,7 +102,7 @@ describe(form.name, () => {
         .toEqualTypeOf<(value: boolean) => boolean>();
     });
 
-    it('object', () => {
+    it('record', () => {
       const myForm = form({
         name: 'Sweeney',
         age: 42,
@@ -107,6 +122,13 @@ describe(form.name, () => {
           age: number;
         }
       >();
+    });
+
+    it('union of different types', () => {
+      const myForm = form<{ name: string } | null>({ name: 'Sweeney' });
+
+      expectTypeOf(myForm()).toEqualTypeOf<{ name: string } | null>();
+      expectTypeOf(myForm).not.toMatchTypeOf<{ fields: any }>();
     });
 
     it('array', () => {
@@ -143,7 +165,7 @@ describe(form.name, () => {
       },
     });
 
-    test('object', {
+    test('record', {
       initialValue: {
         name: 'Sweeney',
         age: 42,
@@ -239,7 +261,7 @@ describe(form.name, () => {
       });
     });
 
-    describe('field property should be typed correctly', () => {
+    describe('should be typed correctly', () => {
       it('primitive values', () => {
         const myForm = form({
           name: 'Sweeney',
@@ -247,8 +269,8 @@ describe(form.name, () => {
         });
 
         expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-          name: Form<string>;
-          age: Form<number>;
+          readonly name: Form<string>;
+          readonly age: Form<number>;
         }>();
       });
 
@@ -263,12 +285,12 @@ describe(form.name, () => {
         });
 
         expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-          name: Form<string>;
-          address: Form<{
+          readonly name: Form<string>;
+          readonly address: Form<{
             street: string;
             number: number;
           }>;
-          kids: Form<string[]>;
+          readonly kids: Form<string[]>;
         }>();
       });
 
@@ -278,7 +300,7 @@ describe(form.name, () => {
         }>({});
 
         expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-          name?: Form<string>;
+          readonly name?: Form<string>;
         }>();
       });
 
@@ -291,13 +313,13 @@ describe(form.name, () => {
         });
 
         expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-          name: Form<string>;
-          partner?: Form<string>;
+          readonly name: Form<string>;
+          readonly partner?: Form<string>;
         }>();
       });
     });
 
-    it('should have field property for objects', () => {
+    it('should have field property', () => {
       expect(myForm.fields()).toEqual({
         name: jasmine.anything(),
         age: jasmine.anything(),
@@ -328,6 +350,10 @@ describe(form.name, () => {
         myForm.fields().address,
         'address',
       ).expectLastValueToEqual;
+      const expectLastStreetToEqual = signalSpy(
+        myForm.fields().address.fields().street,
+        'street',
+      ).expectLastValueToEqual;
 
       myForm.set({
         name: 'Todd',
@@ -344,6 +370,7 @@ describe(form.name, () => {
         street: 'Fleez',
         number: 321,
       });
+      expectLastStreetToEqual('Fleez');
     });
 
     it('should cause emission for parent field when children fields change', () => {
@@ -387,6 +414,17 @@ describe(form.name, () => {
           number: 321,
         },
       });
+
+      myForm.fields().address.fields().number.set(322);
+
+      expectLastFormToEqual({
+        name: 'Todd',
+        age: 43,
+        address: {
+          street: 'Fleez',
+          number: 322,
+        },
+      });
     });
 
     describe('fields change', () => {
@@ -410,7 +448,7 @@ describe(form.name, () => {
       it('should be changed if fields have changed', () => {
         const fieldsSpy = signalSpy(myForm.fields, 'fields');
 
-        fieldsSpy.expectLastValueToEqual(jasmine.anything());
+        const originalValue = fieldsSpy.lastValue();
 
         myForm.set({
           name: 'Todd',
@@ -422,12 +460,14 @@ describe(form.name, () => {
           partner: 'Mrs. Lovett',
         });
 
-        fieldsSpy.expectLastValueToEqual({
+        const value2 = fieldsSpy.lastValue();
+        expect(value2).toEqual({
           name: jasmine.anything(),
           age: jasmine.anything(),
           address: jasmine.anything(),
           partner: jasmine.anything(),
         });
+        expect(originalValue).not.toBe(value2);
 
         myForm.set({
           name: 'Todd',
@@ -438,33 +478,34 @@ describe(form.name, () => {
           },
         });
 
-        fieldsSpy.expectLastValueToEqual({
+        const value3 = fieldsSpy.lastValue();
+        expect(value3).toEqual({
           name: jasmine.anything(),
           age: jasmine.anything(),
           address: jasmine.anything(),
         });
+        expect(value3).not.toBe(value2);
+        expect(value3).not.toBe(originalValue);
+      });
+
+      it('previous fields should be conserved', () => {
+        const nameField = myForm.fields().name;
+
+        expect(nameField()).toEqual('Sweeney');
+
+        myForm.set({
+          name: 'Todd',
+          age: 43,
+          address: {
+            street: 'Fleez',
+            number: 321,
+          },
+          partner: 'Mrs. Lovett',
+        });
+
+        expect(nameField()).toEqual('Todd');
       });
     });
-
-    // TODO: add ability to set partial values
-    // describe('patch', () => {
-    //   it('should not change existing values', () => {
-    //
-    //   });
-    // });
-
-    // TODO: add ability to reset value to initial value
-    // describe('reset', () => {
-    //   it('should reset to initial value', () => {
-    //
-    //   });
-
-    /**
-     * Test:
-     *
-     * - Fields change when they need to (if we set other fields on change?)
-     * - same things for arrays
-     * */
   });
 
   describe('fields as arrays', () => {
@@ -472,6 +513,88 @@ describe(form.name, () => {
 
     beforeEach(() => {
       myForm = form(['one', 'two', 'three']);
+    });
+
+    describe('should be typed correctly', () => {
+      it('primitive value', () => {
+        const myForm = form(['one', 'two', 'three']);
+        expectTypeOf(myForm.fields()).toEqualTypeOf<readonly Form<string>[]>();
+      });
+
+      it('nested object', () => {
+        const myForm = form([
+          {
+            name: 'Sweeney',
+          },
+        ]);
+
+        expectTypeOf(myForm.fields()).toEqualTypeOf<
+          readonly Form<{ name: string }>[]
+        >();
+      });
+    });
+
+    it('should have field property', () => {
+      expect(myForm.fields()).toEqual([
+        jasmine.anything(),
+        jasmine.anything(),
+        jasmine.anything(),
+      ]);
+      expect(myForm.fields()[0]()).toEqual('one');
+      expect(myForm.fields()[1]()).toEqual('two');
+      expect(myForm.fields()[2]()).toEqual('three');
+    });
+
+    it('setting values should cause emission for children', () => {
+      const spys = myForm.fields().map((field, index) => {
+        return signalSpy(field, `field ${index}`);
+      });
+
+      const newValue = ['one!', 'two!', 'three!'];
+      myForm.set(newValue);
+
+      spys.forEach((spy, index) => {
+        spy.expectLastValueToEqual(newValue[index]);
+      });
+    });
+
+    it('should cause emission for parent field when children fields change', () => {
+      const expectLastValueToEqual = signalSpy(
+        myForm,
+        'form',
+      ).expectLastValueToEqual;
+      myForm.fields()[0].set('one!');
+      expectLastValueToEqual(['one!', 'two', 'three']);
+
+      myForm.fields()[1].set('two!');
+      expectLastValueToEqual(['one!', 'two!', 'three']);
+    });
+
+    describe('fields change', () => {
+      it("shouldn't change if fields haven't change", () => {
+        const fieldsSpy = signalSpy(myForm.fields, 'fields');
+
+        fieldsSpy.expectLastValueToEqual(jasmine.anything());
+
+        myForm.set(['one', 'two', 'three']);
+
+        fieldsSpy.expectValueToNotChange();
+      });
+
+      it('should be changed if fields have changed', () => {
+        const fieldsSpy = signalSpy(myForm.fields, 'fields');
+
+        const originalValue = fieldsSpy.lastValue();
+        expect(originalValue.length).toEqual(3);
+
+        myForm.set(['one!', 'two!', 'three', 'four!']);
+
+        const newValue = fieldsSpy.lastValue();
+
+        expect(newValue.length).toEqual(4);
+        expect(newValue).not.toBe(originalValue);
+        expect(originalValue.length).toEqual(3);
+      });
     });
 
     it('should work', () => {

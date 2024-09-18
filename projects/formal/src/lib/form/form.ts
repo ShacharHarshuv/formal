@@ -1,6 +1,6 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { OptionalKeys, RequiredKeys } from 'expect-type';
-import { mapValues } from 'lodash';
+import { mapValues, omit } from 'lodash';
 
 type Primitive = string | number | boolean | null | undefined;
 
@@ -19,15 +19,15 @@ export type Form<T extends FormValue> = WritableSignal<T> & {
 } & (T extends Array<infer U>
     ? {
         // @ts-ignore
-        fields: Signal<Form<U>[]>;
+        fields: Signal<readonly Form<U>[]>;
       }
     : T extends object
       ? {
           fields: Signal<
             // @ts-ignore
-            { [K in RequiredKeys<T>]: Form<T[K]> } & {
+            { readonly [K in RequiredKeys<T>]: Form<T[K]> } & {
               // @ts-ignore
-              [K in OptionalKeys<T>]?: Form<Required<T>[K]>;
+              readonly [K in OptionalKeys<T>]?: Form<Required<T>[K]>;
             }
           >;
         }
@@ -46,8 +46,11 @@ function formArray<T extends FormValue>(initialValue: T[]) {
       );
     }
 
-    const newFields = fields();
-    newFields.length = value.length;
+    let newFields = fields();
+    if (newFields.length !== value.length) {
+      newFields = [...newFields];
+      newFields.length = value.length;
+    }
 
     for (let i = 0; i < value.length; i++) {
       if (!newFields[i]) {
@@ -57,7 +60,7 @@ function formArray<T extends FormValue>(initialValue: T[]) {
       }
     }
 
-    fields.set([...newFields]);
+    fields.set(newFields);
   };
 
   return {
@@ -103,18 +106,21 @@ function formRecord<
       currentFields[key].set(value[key]);
     }
 
+    const keysToRemove = [];
     for (const key in currentFields) {
       if (!(key in value)) {
-        delete currentFields[key];
+        keysToRemove.push(key);
       }
     }
 
-    if (Object.keys(missingFields).length === 0) {
+    // avoid changing reference if we don't need to
+    if (Object.keys(missingFields).length === 0 && !keysToRemove.length) {
       return;
     }
 
+    // @ts-ignore
     fields.set({
-      ...currentFields,
+      ...omit(currentFields, keysToRemove),
       ...missingFields,
     });
   };
