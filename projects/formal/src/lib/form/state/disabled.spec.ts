@@ -72,7 +72,9 @@ describe('Disabled', () => {
         myDisabledHint.set('This is not available now');
         expect(isDisabledSignalSpy.lastValue()).toBe(true);
         expect(disabledHintSignalSpy.lastValue()).toBe('This is not available now');
-      })
+      });
+
+      // TODO: we need to implement and test nested behavior (i.e. disabling parent form should make its children appear disabled)
     });
   }
 });
