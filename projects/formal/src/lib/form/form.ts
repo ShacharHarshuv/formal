@@ -12,9 +12,12 @@ export type FormValue =
     }
   | FormValue[];
 
-const FORM = Symbol('FORM');
+/**
+ * @Internal
+ * */
+export const FORM = Symbol('FORM');
 
-export type Form<T extends FormValue> = WritableSignal<T> & {
+export type Form<T extends FormValue = FormValue> = WritableSignal<T> & {
   [FORM]: unknown;
 } & (T extends Array<infer U>
     ? {
@@ -132,27 +135,57 @@ function formRecord<
   };
 }
 
-export function form(initialValue: string): Form<string>;
-export function form(initialValue: number): Form<number>;
-export function form(initialValue: boolean): Form<boolean>;
-export function form<T extends FormValue>(initialValue: T): Form<T>;
-export function form<T extends FormValue>(initialValue: T): Form<T> {
-  if (typeof initialValue !== 'object' || initialValue === null) {
-    return signal(initialValue) as any; // not sure why type inference didn't work as expected here
-  }
+/**
+ * @internal
+ * */
+export type StateFactory<T extends FormValue = FormValue> = (
+  form: Form<T>,
+) => void;
 
-  const { value, set, fields } = Array.isArray(initialValue)
-    ? formArray(initialValue)
-    : formRecord(initialValue);
+export function form(
+  initialValue: string,
+  states?: StateFactory<string>[],
+): Form<string>;
+export function form(
+  initialValue: number,
+  states?: StateFactory<number>[],
+): Form<number>;
+export function form(
+  initialValue: boolean,
+  states?: StateFactory<boolean>[],
+): Form<boolean>;
+export function form<T extends FormValue>(
+  initialValue: T,
+  states?: StateFactory<T>[],
+): Form<T>;
+export function form<T extends FormValue>(
+  initialValue: T,
+  states: StateFactory<T>[] = [],
+): Form<T> {
+  const _form = (() => {
+    if (typeof initialValue !== 'object' || initialValue === null) {
+      return signal(initialValue) as any; // not sure why type inference didn't work as expected here
+    }
 
-  const update = (updater: (value: T) => T) => {
-    // @ts-ignore
-    set(updater(value()));
-  };
+    const { value, set, fields } = Array.isArray(initialValue)
+      ? formArray(initialValue)
+      : formRecord(initialValue);
 
-  return Object.assign(value, {
-    set,
-    update,
-    fields,
-  }) as unknown as Form<T>;
+    const update = (updater: (value: T) => T) => {
+      // @ts-ignore
+      set(updater(value()));
+    };
+
+    return Object.assign(value, {
+      set,
+      update,
+      fields,
+    }) as unknown as Form<T>;
+  })();
+
+  _form[FORM] = {};
+
+  states.forEach((state) => state(_form));
+
+  return _form;
 }

@@ -1,59 +1,13 @@
-import { Component, effect, Signal } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { expectTypeOf } from 'expect-type';
-import { form, Form, FormValue } from './form';
-import Expected = jasmine.Expected;
-
-export function signalSpy<T>(signal: Signal<T>, name: string) {
-  let fixture: ComponentFixture<unknown>;
-
-  let changeSpy = jasmine.createSpy(`${name} spy`);
-
-  function lastValue() {
-    fixture.detectChanges();
-    if (signal() !== changeSpy.calls.mostRecent().args[0]) {
-      fail(`Value change for signal "${name}" have not been notified`);
-    }
-    return signal();
-  }
-
-  function expectLastValueToEqual(value: Expected<T>) {
-    fixture.detectChanges();
-    expect(signal()).toEqual(value);
-    expect(changeSpy.calls.mostRecent().args[0]).toEqual(value);
-  }
-
-  function expectValueToNotChange() {
-    const callsCount = changeSpy.calls.count();
-    const currentValue = signal();
-    fixture.detectChanges();
-    if (changeSpy.calls.count() > callsCount) {
-      fail(`Expected signal "${name}" to not have changed`);
-    }
-    if (signal() !== currentValue) {
-      fail(`Value of signal "${name}" is different than the previous value`);
-    }
-  }
-
-  @Component({ template: '' })
-  class MyComponent {
-    constructor() {
-      effect(() => {
-        changeSpy(signal());
-      });
-    }
-  }
-
-  fixture = TestBed.createComponent(MyComponent);
-
-  return {
-    expectLastValueToEqual,
-    expectValueToNotChange,
-    lastValue,
-  };
-}
-
-export type SignalSpy<T> = ReturnType<typeof signalSpy>;
+import {
+  form,
+  Form,
+  FormValue,
+} from './form';
+import {
+  SignalSpy,
+  signalSpy,
+} from '../utility/signal-spy.spec';
 
 describe(form.name, () => {
   it('should be created', () => {
@@ -125,7 +79,7 @@ describe(form.name, () => {
     });
 
     it('union of different types', () => {
-      const myForm = form<{ name: string } | null>({ name: 'Sweeney' });
+      const myForm = form<{ name: string } | null>({name: 'Sweeney'});
 
       expectTypeOf(myForm()).toEqualTypeOf<{ name: string } | null>();
       expectTypeOf(myForm).not.toMatchTypeOf<{ fields: any }>();
