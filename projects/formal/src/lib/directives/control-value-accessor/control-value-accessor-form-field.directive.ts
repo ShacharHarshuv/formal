@@ -1,10 +1,20 @@
-import { Directive, effect, forwardRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  computed,
+  Directive,
+  effect,
+  forwardRef,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   NgControl,
 } from '@angular/forms';
 import { FormValue } from '../../form/form';
+import { isDisabled } from '../../form/state/disabled';
 import { FormFieldDirective } from '../form-field.directive';
 import { selectValueAccessor } from './select-value-accessor';
 
@@ -52,6 +62,17 @@ export class ControlValueAccessorFormFieldDirective<
       // vca -> form
       this._valueAccessor()?.registerOnChange((value: T) => {
         this.form?.set(value);
+      });
+    });
+
+    const cdRef = inject(ChangeDetectorRef);
+    const shouldDisable = computed(() =>
+      this.form ? isDisabled(this.form) : false,
+    );
+    effect(() => {
+      const value = shouldDisable();
+      untracked(() => {
+        this._valueAccessor()?.setDisabledState?.(value);
       });
     });
   }

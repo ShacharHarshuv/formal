@@ -12,8 +12,14 @@
   <!--    <option value="male">Male</option>-->
   <!--    <option value="female">Female</option>-->
   <!--  </select>-->
+
   <button (click)="save()" type="submit">Save</button>
   {{ form() | json }}
+</form>
+
+<form>
+  <label>Disabled</label>
+  <input [formField]="disabledForm" />
 </form>
 
 <h2>Angular Material (i.e. CVS interop)</h2>
@@ -43,6 +49,10 @@
     </mat-select>
   </mat-form-field>
   <button (click)="save()" mat-raised-button type="submit">Save</button>
+  <mat-form-field>
+    <mat-label>Disabled</mat-label>
+    <input [formField]="disabledForm" matInput />
+  </mat-form-field>
 </form>
 
 <pre

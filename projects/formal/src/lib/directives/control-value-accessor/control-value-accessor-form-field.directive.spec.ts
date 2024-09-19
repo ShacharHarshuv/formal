@@ -1,14 +1,25 @@
-import { Component, forwardRef, inject, Type } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  Component,
+  effect,
+  forwardRef,
+  inject,
+  signal,
+  Type,
+} from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   NgControl,
 } from '@angular/forms';
-import { form, FORM_FIELD_DIRECTIVES } from 'formal';
+import { form, formalDirectives } from 'formal';
 import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-view-binding.spec';
 
 abstract class AbstractCustomInputComponent implements ControlValueAccessor {
+  disabled = signal(false);
+  e = effect(() => {
+    console.log('disabled', this.disabled());
+  });
   value: string = '';
   onChange = (value: any) => {};
   onTouched = () => {};
@@ -25,6 +36,10 @@ abstract class AbstractCustomInputComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
+  setDisabledState(isDisabled: boolean) {
+    this.disabled.set(isDisabled);
+  }
+
   onInput($event: Event) {
     const value = ($event.target as HTMLInputElement).value;
     this.value = value;
@@ -35,7 +50,11 @@ abstract class AbstractCustomInputComponent implements ControlValueAccessor {
 
 @Component({
   selector: 'app-custom-input',
-  template: `<input [value]="value" (input)="onInput($event)" />`,
+  template: `<input
+    [value]="value"
+    [disabled]="disabled()"
+    (input)="onInput($event)"
+  />`,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -53,7 +72,12 @@ export class CustomInputAccessorProvidedComponent extends AbstractCustomInputCom
 
 @Component({
   selector: 'app-custom-input',
-  template: `<input [value]="value" (input)="onInput($event)" />`,
+  template: `<input
+      [value]="value"
+      [disabled]="disabled()"
+      (input)="onInput($event)"
+    />
+    Disabled: {{ disabled() }}`,
   standalone: true,
   host: {
     // to test for potential ExpressionChangedAfterItHasBeenCheckedError
@@ -75,8 +99,6 @@ export class CustomInputAccessorSelfInsertedComponent extends AbstractCustomInpu
   }
 }
 
-const INITIAL_VALUE = 'initial';
-
 describe('ControlValueAccessorFormFieldDirective', () => {
   test('accessor provided', CustomInputAccessorProvidedComponent);
   test('accessor self inserted', CustomInputAccessorSelfInsertedComponent);
@@ -84,43 +106,49 @@ describe('ControlValueAccessorFormFieldDirective', () => {
 
 function test(name: string, customControlComp: Type<ControlValueAccessor>) {
   describe(name, () => {
-    @Component({
-      template: '<app-custom-input [formField]="myForm"></app-custom-input>',
-      standalone: true,
-      imports: [customControlComp, ...FORM_FIELD_DIRECTIVES],
-    })
-    class TestComponent {
-      readonly myForm = form(INITIAL_VALUE);
-    }
-
-    let fixture: ComponentFixture<TestComponent>;
-
-    beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [TestComponent],
-      }).compileComponents();
-      fixture = TestBed.createComponent(TestComponent);
-      fixture.detectChanges();
-      TestBed.flushEffects();
-      fixture.detectChanges();
-    });
-
     testFormFieldDirectiveViewBinding({
-      initialValue: INITIAL_VALUE,
+      initialValue: 'initial',
       newValue: 'new',
-      form() {
-        return fixture.componentInstance.myForm;
-      },
-      viewValue() {
-        return fixture.nativeElement.querySelector('input').value;
-      },
-      fixture() {
-        return fixture;
-      },
-      setViewValue(value: string) {
-        const input = fixture.nativeElement.querySelector('input');
-        input.value = value;
-        input.dispatchEvent(new Event('input'));
+      create(...args) {
+        @Component({
+          template:
+            '<app-custom-input [formField]="myForm"></app-custom-input>',
+          standalone: true,
+          imports: [customControlComp, ...formalDirectives],
+        })
+        class TestComponent {
+          readonly myForm = form(...args);
+        }
+
+        TestBed.configureTestingModule({
+          imports: [TestComponent],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(TestComponent);
+        fixture.detectChanges();
+        TestBed.flushEffects();
+        fixture.detectChanges();
+
+        const element = () => fixture.nativeElement.querySelector('input');
+
+        return {
+          form() {
+            return fixture.componentInstance.myForm;
+          },
+          viewValue() {
+            return element().value;
+          },
+          isDisabled() {
+            return element().disabled;
+          },
+          fixture() {
+            return fixture;
+          },
+          setViewValue(value: string) {
+            const input = fixture.nativeElement.querySelector('input');
+            input.value = value;
+            input.dispatchEvent(new Event('input'));
+          },
+        };
       },
     });
   });
