@@ -10,7 +10,7 @@ import {
 import { isDisabled } from '../form/state/disabled';
 import { FormFieldDirective } from './form-field.directive';
 
-// TODO: Angular's DefaultValueAccessor handles "composition" which appears to be necessary for IME input, we should probably handle that too
+// TODO(#4): Angular's DefaultValueAccessor handles "composition" which appears to be necessary for IME input, we should probably handle that too
 // note we might need to create a separate one for a numeric value (like Angular does)
 // also there is a mechanism to distinguish between "built in" CVAs, "default CVA" (last choice) and "custom CVA" (first choice). I'm not sure if we need to make this distinction. It's possible that we need to prevent multiple such directives from applying somehow
 

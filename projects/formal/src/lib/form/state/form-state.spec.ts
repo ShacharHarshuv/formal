@@ -1,3 +1,3 @@
-// TODO: create tests when we are more confident about the API
-// describe(createFormState.name, () => {
+// TODO(#6): create tests when we are more confident about the API
+// describe(defineFormState.name, () => {
 // });
