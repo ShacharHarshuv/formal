@@ -244,6 +244,13 @@ describe(form.name, () => {
             readonly partner?: Form<string>;
           }>();
         });
+
+        it('should conserve type', () => {
+          type MyFormValue = { name: string };
+          const value: MyFormValue = { name: 'Sweeney' };
+          const myForm = form(value);
+          expectTypeOf(myForm).branded.toEqualTypeOf<Form<MyFormValue>>();
+        });
       });
 
       describe('arrays', () => {
