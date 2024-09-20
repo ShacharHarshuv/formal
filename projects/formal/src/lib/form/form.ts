@@ -2,15 +2,15 @@ import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { OptionalKeys, RequiredKeys } from 'expect-type';
 import { mapValues, omit } from 'lodash';
 
-type Primitive = string | number | boolean | null | undefined;
+type PrimitiveFormValue = string | number | boolean | null | undefined;
 
-export type FormValue =
-  | Primitive
-  | {
-      [K: string]: FormValue;
-      [K: number]: FormValue;
-    }
-  | FormValue[];
+type RecordFormValue = {
+  [K: string | number]: FormValue;
+};
+
+type ArrayFormValue = FormValue[];
+
+export type FormValue = PrimitiveFormValue | RecordFormValue | ArrayFormValue;
 
 /**
  * @Internal
@@ -36,8 +36,41 @@ export type Form<T extends FormValue = FormValue> = WritableSignal<T> & {
         }
       : {});
 
-function formArray<T extends FormValue>(initialValue: T[]) {
-  const initialFields = initialValue.map((value) => form(value));
+type FormOrValue<T extends FormValue = FormValue> = Form<T> | T;
+
+type ArrayFormInit<T extends FormValue = FormValue> = FormOrValue<T>[];
+
+type RecordFormInit = { [K: string | number]: FormOrValue };
+
+type FormInit = PrimitiveFormValue | ArrayFormInit | RecordFormInit;
+
+type FormInitFromValue<T extends FormValue = FormValue> = T extends Array<
+  infer U
+>
+  ? // @ts-ignore
+    ArrayFormInit<U>
+  : T extends RecordFormValue
+    ? // @ts-ignore
+      { [K in RequiredKeys<T>]: FormOrValue<T[K]> } & {
+        // @ts-ignore
+        [K in OptionalKeys<T>]?: FormOrValue<Required<T>[K]>;
+      }
+    : T;
+
+type FormValueFromInit<T extends FormInit> = T extends PrimitiveFormValue
+  ? T
+  : T extends ArrayFormInit<infer U>
+    ? U[]
+    : T extends RecordFormInit
+      ? { [K in RequiredKeys<T>]: T[K] extends Form<infer U> ? U : T[K] } & {
+          [K in OptionalKeys<T>]?: Required<T>[K] extends Form<infer U>
+            ? U
+            : Required<T>[K];
+        }
+      : never;
+
+function formArray<T extends FormValue>(initialValue: FormOrValue<T>[]) {
+  const initialFields = initialValue.map((value) => toForm(value));
   const fields = signal(initialFields);
 
   const value = computed(() => fields().map((field) => field()));
@@ -73,12 +106,26 @@ function formArray<T extends FormValue>(initialValue: T[]) {
   };
 }
 
+function isForm<T extends FormValue>(
+  formOrValue: FormOrValue<T>,
+): formOrValue is Form<T> {
+  return (
+    ((formOrValue != null && typeof formOrValue === 'object') ||
+      typeof formOrValue === 'function') &&
+    FORM in formOrValue
+  );
+}
+
+function toForm<T extends FormValue>(formOrValue: FormOrValue<T>): Form<T> {
+  return isForm(formOrValue) ? formOrValue : form<T>(formOrValue as T);
+}
+
 function formRecord<
   T extends {
     [K: string | number]: FormValue;
   },
->(initialValue: T) {
-  const initialFields = mapValues(initialValue, (value) => form(value)) as {
+>(initialValue: { [K in keyof T]: FormOrValue<T[K]> }) {
+  const initialFields = mapValues(initialValue, (value) => toForm(value)) as {
     [K in keyof T]: Form<T[K] & FormValue>;
   };
   const fields = signal(initialFields);
@@ -154,12 +201,23 @@ export function form(
   initialValue: boolean,
   states?: StateFactory<boolean>[],
 ): Form<boolean>;
+// to conserve the type name in the simple case where the input type could also be used as a value directly
 export function form<T extends FormValue>(
   initialValue: T,
   states?: StateFactory<T>[],
 ): Form<T>;
-export function form<T extends FormValue>(
+// These overload is used for generic inference only, and is not meant to be manually passed by consumers
+export function form<T extends FormInit, Dummy extends never>(
   initialValue: T,
+  states?: StateFactory<FormValueFromInit<T>>[],
+): Form<FormValueFromInit<T>>;
+// this overload is used for explicitly passing the form value to the generic
+export function form<T extends FormValue>(
+  initialValue: T | FormInitFromValue<T>,
+  states?: StateFactory<T>[],
+): Form<T>;
+export function form<T extends FormValue>(
+  initialValue: FormInitFromValue<T>,
   states: StateFactory<T>[] = [],
 ): Form<T> {
   const _form = (() => {
