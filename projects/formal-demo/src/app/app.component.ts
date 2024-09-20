@@ -5,8 +5,8 @@ import { MatButton } from '@angular/material/button';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { form, formalDirectives } from 'formal';
-import { disabledIf } from '../../../formal/src/lib/form/state/disabled';
+import { DisabledHintPipe, form, formalDirectives } from 'formal';
+import { disabledIf } from '../../../formal/src/lib/form/state/disabled/disabled';
 import { CustomFormFieldNumberComponent } from '../custom-form-field-number/custom-form-field-number.component';
 import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accessor-number-field/custom-value-accessor-number-field.component';
 
@@ -27,6 +27,7 @@ import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accesso
     CustomValueAccessorNumberFieldComponent,
     CustomFormFieldNumberComponent,
     formalDirectives,
+    DisabledHintPipe,
   ],
 })
 export class AppComponent {

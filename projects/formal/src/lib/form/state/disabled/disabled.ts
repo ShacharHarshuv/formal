@@ -1,7 +1,7 @@
 import { Form } from 'formal';
-import { StaticOrGetter, toGetter } from '../../utility/static-or-getter';
-import { StaticOrSignal, toSignal } from '../../utility/static-or-signal';
-import { defineFormState } from './form-state';
+import { StaticOrGetter, toGetter } from '../../../utility/static-or-getter';
+import { StaticOrSignal, toSignal } from '../../../utility/static-or-signal';
+import { defineFormState } from '../form-state';
 
 type DisabledState = boolean | string | null | undefined;
 

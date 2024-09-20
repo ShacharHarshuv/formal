@@ -14,7 +14,7 @@ import {
   NgControl,
 } from '@angular/forms';
 import { FormValue } from '../../form/form';
-import { isDisabled } from '../../form/state/disabled';
+import { isDisabled } from '../../form/state/disabled/disabled';
 import { FormFieldDirective } from '../form-field.directive';
 import { selectValueAccessor } from './select-value-accessor';
 

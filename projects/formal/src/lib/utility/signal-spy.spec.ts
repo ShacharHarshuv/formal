@@ -1,12 +1,5 @@
-import {
-  Signal,
-  Component,
-  effect,
-} from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed,
-} from '@angular/core/testing';
+import { Component, effect, Signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import Expected = jasmine.Expected;
 
 export function signalSpy<T>(signal: Signal<T>, name: string) {
@@ -58,4 +51,4 @@ export function signalSpy<T>(signal: Signal<T>, name: string) {
   };
 }
 
-export type SignalSpy<T> = ReturnType<typeof signalSpy>;
+export type SignalSpy<T> = ReturnType<typeof signalSpy<T>>;

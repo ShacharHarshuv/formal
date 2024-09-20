@@ -1,7 +1,7 @@
 import { computed, signal } from '@angular/core';
 import { form, FormValue } from 'formal';
 import { isEqual } from 'lodash';
-import { signalSpy } from '../../utility/signal-spy.spec';
+import { signalSpy } from '../../../utility/signal-spy.spec';
 import { disabledHint, disabledIf, isDisabled } from './disabled';
 
 describe('Disabled', () => {

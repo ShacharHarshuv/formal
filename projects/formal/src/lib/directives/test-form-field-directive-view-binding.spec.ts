@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { Form, FormValue, form } from 'formal';
-import { disabledIf } from '../form/state/disabled';
+import { disabledIf } from '../form/state/disabled/disabled';
 
 export function testFormFieldDirectiveViewBinding<T extends FormValue>({
   initialValue,

@@ -7,7 +7,7 @@ import {
   inject,
   Renderer2,
 } from '@angular/core';
-import { isDisabled } from '../form/state/disabled';
+import { isDisabled } from '../form/state/disabled/disabled';
 import { FormFieldDirective } from './form-field.directive';
 
 // TODO(#4): Angular's DefaultValueAccessor handles "composition" which appears to be necessary for IME input, we should probably handle that too
