@@ -587,5 +587,26 @@ describe(form.name, () => {
         expect(myForm.fields()[1]()).toBe('two');
       });
     });
+
+    describe('should allow passing inner fields when supplying to form type explicitly', () => {
+      it('records', () => {
+        const nameField = form('Sweeney');
+        const myForm = form<{ name: string; age: number }>({
+          name: nameField,
+          age: 42,
+        });
+        expectTypeOf(myForm).branded.toEqualTypeOf<
+          Form<{ name: string; age: number }>
+        >();
+        expect(myForm.fields().name).toBe(nameField);
+      });
+
+      it('arrays', () => {
+        const nameField = form('Sweeney');
+        const myForm = form<string[]>([nameField, 'two']);
+        expectTypeOf(myForm).branded.toEqualTypeOf<Form<string[]>>();
+        expect(myForm.fields()[0]).toBe(nameField);
+      });
+    });
   });
 });
