@@ -1,6 +1,7 @@
 import { Form } from 'formal';
 import { StaticOrGetter, toGetter } from '../../../utility/static-or-getter';
 import { StaticOrSignal, toSignal } from '../../../utility/static-or-signal';
+import { PARENT } from '../../parent';
 import { defineFormState } from '../form-state';
 
 type DisabledState = boolean | string | null | undefined;
@@ -17,11 +18,20 @@ const [readState, stateFactory] = defineFormState('disabled', {
 
 export const disabledIf = stateFactory;
 
+function readStateRecursively(form: Form): DisabledState {
+  const currentState = readState(form);
+  if (typeof currentState === 'string' || currentState === true) {
+    return currentState;
+  }
+
+  return form[PARENT] ? readStateRecursively(form[PARENT]) : currentState;
+}
+
 export function isDisabled(form: Form): boolean {
-  return !!readState(form);
+  return !!readStateRecursively(form);
 }
 
 export function disabledHint(form: Form): string {
-  const state = readState(form);
+  const state = readStateRecursively(form);
   return typeof state === 'string' ? state : '';
 }

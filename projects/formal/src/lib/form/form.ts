@@ -1,6 +1,7 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { OptionalKeys, RequiredKeys } from 'expect-type';
 import { mapValues, omit } from 'lodash';
+import { PARENT } from './parent';
 
 type PrimitiveFormValue = string | number | boolean | null | undefined;
 
@@ -19,6 +20,7 @@ export const FORM = Symbol('FORM');
 
 export type Form<T extends FormValue = FormValue> = WritableSignal<T> & {
   [FORM]: unknown;
+  [PARENT]?: Form;
 } & (T extends Array<infer U>
     ? {
         // @ts-ignore
@@ -69,8 +71,22 @@ type FormValueFromInit<T extends FormInit> = T extends PrimitiveFormValue
         }
       : never;
 
-function formArray<T extends FormValue>(initialValue: FormOrValue<T>[]) {
+function assignParent(field: Form, getParent: () => Form | undefined) {
+  Object.defineProperty(field, PARENT, {
+    get: getParent,
+  });
+}
+
+function formArray<T extends FormValue>(
+  initialValue: FormOrValue<T>[],
+  getSelf: () => Form | undefined,
+) {
   const initialFields = initialValue.map((value) => toForm(value));
+
+  for (const field of initialFields) {
+    assignParent(field, getSelf);
+  }
+
   const fields = signal(initialFields);
 
   const value = computed(() => fields().map((field) => field()));
@@ -94,6 +110,10 @@ function formArray<T extends FormValue>(initialValue: FormOrValue<T>[]) {
       } else {
         newFields[i].set(value[i]);
       }
+    }
+
+    for (const field of newFields) {
+      assignParent(field, getSelf);
     }
 
     fields.set(newFields);
@@ -124,10 +144,18 @@ function formRecord<
   T extends {
     [K: string | number]: FormValue;
   },
->(initialValue: { [K in keyof T]: FormOrValue<T[K]> }) {
+>(
+  initialValue: { [K in keyof T]: FormOrValue<T[K]> },
+  getSelf: () => Form | undefined,
+) {
   const initialFields = mapValues(initialValue, (value) => toForm(value)) as {
     [K in keyof T]: Form<T[K] & FormValue>;
   };
+
+  for (const field of Object.values(initialFields)) {
+    assignParent(field, getSelf);
+  }
+
   const fields = signal(initialFields);
 
   const value = computed((): T => {
@@ -143,7 +171,7 @@ function formRecord<
     }
 
     const currentFields = fields();
-    const missingFields: { [key: string]: any } = {};
+    const missingFields: { [key: string]: Form } = {};
 
     for (const key in value) {
       if (!(key in currentFields)) {
@@ -166,6 +194,10 @@ function formRecord<
     // avoid changing reference if we don't need to
     if (Object.keys(missingFields).length === 0 && !keysToRemove.length) {
       return;
+    }
+
+    for (const field of Object.values(missingFields)) {
+      assignParent(field, getSelf);
     }
 
     // @ts-ignore
@@ -204,30 +236,34 @@ export function form(
 // to conserve the type name in the simple case where the input type could also be used as a value directly
 export function form<T extends FormValue>(
   initialValue: T,
-  states?: StateFactory<T>[],
+  states?: StateFactory<NoInfer<T>>[],
 ): Form<T>;
 // These overload is used for generic inference only, and is not meant to be manually passed by consumers
 export function form<T extends FormInit, Dummy extends never>(
   initialValue: T,
-  states?: StateFactory<FormValueFromInit<T>>[],
+  states?: StateFactory<FormValueFromInit<NoInfer<T>>>[],
 ): Form<FormValueFromInit<T>>;
 // this overload is used for explicitly passing the form value to the generic
 export function form<T extends FormValue>(
   initialValue: T | FormInitFromValue<T>,
-  states?: StateFactory<T>[],
+  states?: StateFactory<NoInfer<T>>[],
 ): Form<T>;
 export function form<T extends FormValue>(
   initialValue: FormInitFromValue<T>,
-  states: StateFactory<T>[] = [],
+  states: StateFactory<NoInfer<T>>[] = [],
 ): Form<T> {
-  const _form = (() => {
+  let _form: Form<NoInfer<T>>;
+
+  const getSelf = () => _form;
+
+  _form = (() => {
     if (typeof initialValue !== 'object' || initialValue === null) {
       return signal(initialValue) as any; // not sure why type inference didn't work as expected here
     }
 
     const { value, set, fields } = Array.isArray(initialValue)
-      ? formArray(initialValue)
-      : formRecord(initialValue);
+      ? formArray(initialValue, getSelf)
+      : formRecord(initialValue, getSelf);
 
     const update = (updater: (value: T) => T) => {
       // @ts-ignore

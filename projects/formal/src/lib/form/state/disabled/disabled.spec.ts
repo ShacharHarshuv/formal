@@ -1,5 +1,6 @@
 import { computed, signal } from '@angular/core';
-import { form, FormValue } from 'formal';
+import { expectTypeOf } from 'expect-type';
+import { form, Form, FormValue } from 'formal';
 import { isEqual } from 'lodash';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { disabledHint, disabledIf, isDisabled } from './disabled';
@@ -78,8 +79,66 @@ describe('Disabled', () => {
           'This is not available now',
         );
       });
-
-      // TODO(#5): we need to implement and test nested behavior (i.e. disabling parent form should make its children appear disabled)
     });
   }
+
+  describe('should infer type correctly', () => {
+    it('primitive', () => {
+      const myForm = form('Sweeney', [disabledIf(true)]);
+      expectTypeOf(myForm).toEqualTypeOf<Form<string>>();
+    });
+
+    it('record', () => {
+      const myForm = form(
+        {
+          name: 'Sweeney',
+        },
+        [disabledIf(true)],
+      );
+      expectTypeOf(myForm).toEqualTypeOf<Form<{ name: string }>>();
+    });
+
+    it('array', () => {
+      const myForm = form(['Sweeney'], [disabledIf(true)]);
+      expectTypeOf(myForm).toEqualTypeOf<Form<string[]>>();
+    });
+  });
+
+  describe('children should be disabled, but not parents', () => {
+    it('record', () => {
+      const myForm = form({
+        child: form<{
+          grandChild: string;
+          grandChild2?: string;
+        }>(
+          {
+            grandChild: 'grandChild',
+          },
+          [disabledIf(true)],
+        ),
+      });
+
+      expect(isDisabled(myForm)).toBe(false);
+      expect(isDisabled(myForm.fields().child)).toBe(true);
+      expect(isDisabled(myForm.fields().child.fields().grandChild)).toBe(true);
+
+      // adding a new field
+      myForm.fields().child.set({
+        grandChild: 'newGrandChild',
+        grandChild2: 'newGrandChild2',
+      });
+
+      expect(isDisabled(myForm.fields().child.fields().grandChild2!)).toBe(
+        true,
+      );
+    });
+
+    it('array', () => {
+      const myForm = form([form(['grandChild'], [disabledIf(true)])]);
+
+      expect(isDisabled(myForm)).toBe(false);
+      expect(isDisabled(myForm.fields()[0])).toBe(true);
+      expect(isDisabled(myForm.fields()[0].fields()[0])).toBe(true);
+    });
+  });
 });
