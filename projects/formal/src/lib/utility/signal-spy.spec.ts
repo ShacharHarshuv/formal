@@ -1,15 +1,16 @@
-import { Component, effect, Signal } from '@angular/core';
+import { Component, effect } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { isEqual } from 'lodash';
 import Expected = jasmine.Expected;
 
-export function signalSpy<T>(signal: Signal<T>, name: string) {
+export function signalSpy<T>(signal: () => T, name: string) {
   let fixture: ComponentFixture<unknown>;
 
   let changeSpy = jasmine.createSpy(`${name} spy`);
 
   function lastValue() {
     fixture.detectChanges();
-    if (signal() !== changeSpy.calls.mostRecent().args[0]) {
+    if (!isEqual(signal(), changeSpy.calls.mostRecent().args[0])) {
       fail(`Value change for signal "${name}" have not been notified`);
     }
     return signal();

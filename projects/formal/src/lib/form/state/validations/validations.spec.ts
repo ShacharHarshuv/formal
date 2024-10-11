@@ -1,11 +1,19 @@
-import { form } from '../../form';
+import { signalSpy } from '../../../utility/signal-spy.spec';
+import { form, Form } from '../../form';
 import { errorMessages } from './error-messages';
 import { firstErrorMessage } from './first-error-messages';
 import { isInvalid } from './is-invalid';
 import { isValid } from './is-valid';
+import { ValidationFn } from './validator';
 import { validationErrors, withValidators } from './with-validators';
 
 describe('validations', () => {
+  it('type enforcement', () => {
+    const numberValidator = (value: Form<number>) => null;
+    // @ts-expect-error
+    form('hello', [withValidators(numberValidator)]);
+  });
+
   it('no validators', () => {
     const myForm = form('hello');
     expect(isValid(myForm)).toBe(true);
@@ -49,4 +57,82 @@ describe('validations', () => {
     expect(errorMessages(myForm)).toEqual(['I am home at last']);
     expect(firstErrorMessage(myForm)).toBe('I am home at last');
   });
+
+  it('one validation based on form value', () => {
+    const myForm = form('', [
+      withValidators((form) =>
+        form() === 'hello' ? 'hello is not allowed' : null,
+      ),
+    ]);
+
+    const isValidSpy = signalSpy(() => isValid(myForm), 'isValid');
+    const isInvalidSpy = signalSpy(() => isInvalid(myForm), 'isInvalid');
+    const validationErrorsSpy = signalSpy(
+      () => validationErrors(myForm),
+      'validationErrors',
+    );
+    const errorMessagesSpy = signalSpy(
+      () => errorMessages(myForm),
+      'errorMessages',
+    );
+    const firstErrorMessageSpy = signalSpy(
+      () => firstErrorMessage(myForm),
+      'firstErrorMessage',
+    );
+
+    expect(isValidSpy.lastValue()).toBe(true);
+    expect(isInvalidSpy.lastValue()).toBe(false);
+    expect(validationErrorsSpy.lastValue()).toEqual([]);
+    expect(errorMessagesSpy.lastValue()).toEqual([]);
+    expect(firstErrorMessageSpy.lastValue()).toBe(null);
+
+    myForm.set('hello');
+
+    expect(isValidSpy.lastValue()).toBe(false);
+    expect(isInvalidSpy.lastValue()).toBe(true);
+    expect(validationErrorsSpy.lastValue()).toEqual(['hello is not allowed']);
+    expect(errorMessagesSpy.lastValue()).toEqual(['hello is not allowed']);
+    expect(firstErrorMessageSpy.lastValue()).toBe('hello is not allowed');
+  });
+
+  it('two validators', () => {
+    const myForm = form('hello', [
+      withValidators(
+        () => 'early morning madness',
+        () => 'late night madness',
+      ),
+    ]);
+
+    expect(isValid(myForm)).toBe(false);
+    expect(isInvalid(myForm)).toBe(true);
+    expect(validationErrors(myForm)).toEqual([
+      'early morning madness',
+      'late night madness',
+    ]);
+    expect(errorMessages(myForm)).toEqual([
+      'early morning madness',
+      'late night madness',
+    ]);
+    expect(firstErrorMessage(myForm)).toBe('early morning madness');
+  });
+
+  it('two validators reactive', () => {
+    const divisibleBy =
+      (n: number): ValidationFn<number> =>
+      (form: Form<number>) => {
+        return form() % n === 0 ? null : `${form()} is not divisible by ${n}`;
+      };
+
+    const myForm = form(0, [withValidators(divisibleBy(2), divisibleBy(3))]);
+    const errorMessagesSpy = signalSpy(() => errorMessages(myForm), 'errors');
+    expect(errorMessagesSpy.lastValue()).toEqual([]);
+    myForm.set(2);
+    expect(errorMessagesSpy.lastValue()).toEqual(['2 is not divisible by 3']);
+    myForm.set(3);
+    expect(errorMessagesSpy.lastValue()).toEqual(['3 is not divisible by 2']);
+    myForm.set(6);
+    expect(errorMessagesSpy.lastValue()).toEqual([]);
+  });
+
+  // todo: add tests for nested forms. We probably want to be able to get accumulated errors in parents extra
 });

@@ -1,16 +1,7 @@
-import {
-  Signal,
-  computed,
-} from '@angular/core';
-import {
-  Form,
-  FormValue,
-} from 'formal';
-import {
-  FORM,
-  StateFactory,
-} from '../form';
+import { Signal, computed } from '@angular/core';
+import { Form, FormValue } from 'formal';
 import { toGetter } from '../../utility/static-or-getter';
+import { FORM, StateFactory } from '../form';
 
 export function defineFormState<
   State,
@@ -26,8 +17,8 @@ export function defineFormState<
     /**
      * An immutable and reactive state that will be created once when the form initializes
      * */
-    createState: (
-      form: Form<TFormValue>,
+    createState: <T extends TFormValue>(
+      form: Form<T>,
       ...args: Args
     ) => State | Signal<State>;
   },
@@ -35,20 +26,22 @@ export function defineFormState<
   const symbol = Symbol(description);
 
   const stateFactory =
-    (...args: Args): StateFactory<TFormValue> =>
-      (form) => {
-        const state = computed(() => {
-          return toGetter(config.createState(form, ...args))();
-        })
+    <T extends TFormValue, TArgs extends Args>(
+      ...args: TArgs
+    ): StateFactory<T> =>
+    (form) => {
+      const state = computed(() => {
+        return toGetter(config.createState(form, ...args))();
+      });
 
-        if ((form[FORM] as any)[symbol]) {
-          throw new Error(
-            `Cannot use "${description}" on the same form more than once. Please make sure you initialize your form with one "${description}" once`,
-          );
-        }
+      if ((form[FORM] as any)[symbol]) {
+        throw new Error(
+          `Cannot use "${description}" on the same form more than once. Please make sure you initialize your form with one "${description}" once`,
+        );
+      }
 
-        (form[FORM] as any)[symbol] = state;
-      };
+      (form[FORM] as any)[symbol] = state;
+    };
 
   const readState = (form: Form<TFormValue>) => {
     const stateSignal = (form[FORM] as any)?.[symbol] as
