@@ -3,13 +3,13 @@ import { OptionalKeys, RequiredKeys } from 'expect-type';
 import { mapValues, omit } from 'lodash';
 import { PARENT } from './parent';
 
-type PrimitiveFormValue = string | number | boolean | null | undefined;
+export type PrimitiveFormValue = string | number | boolean | null | undefined;
 
-type RecordFormValue = {
+export type RecordFormValue = {
   [K: string | number]: FormValue;
 };
 
-type ArrayFormValue = FormValue[];
+export type ArrayFormValue = FormValue[];
 
 export type FormValue = PrimitiveFormValue | RecordFormValue | ArrayFormValue;
 

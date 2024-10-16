@@ -5,7 +5,11 @@ import { firstErrorMessage } from './first-error-messages';
 import { isInvalid } from './is-invalid';
 import { isValid } from './is-valid';
 import { ValidationFn } from './validator';
-import { validationErrors, withValidators } from './with-validators';
+import {
+  ownValidationErrors,
+  validationErrors,
+  withValidators,
+} from './with-validators';
 
 describe('validations', () => {
   it('type enforcement', () => {
@@ -18,6 +22,7 @@ describe('validations', () => {
     const myForm = form('hello');
     expect(isValid(myForm)).toBe(true);
     expect(isInvalid(myForm)).toBe(false);
+    expect(ownValidationErrors(myForm)).toEqual([]);
     expect(validationErrors(myForm)).toEqual([]);
     expect(errorMessages(myForm)).toEqual([]);
     expect(firstErrorMessage(myForm)).toBe(null);
@@ -27,6 +32,7 @@ describe('validations', () => {
     const myForm = form('hello', [withValidators(() => ({ invalid: true }))]);
     expect(isValid(myForm)).toBe(false);
     expect(isInvalid(myForm)).toBe(true);
+    expect(ownValidationErrors(myForm)).toEqual([{ invalid: true }]);
     expect(validationErrors(myForm)).toEqual([{ invalid: true }]);
     expect(errorMessages(myForm)).toEqual([]);
     expect(firstErrorMessage(myForm)).toBe(null);
@@ -39,6 +45,7 @@ describe('validations', () => {
 
     expect(isValid(myForm)).toBe(false);
     expect(isInvalid(myForm)).toBe(true);
+    expect(ownValidationErrors(myForm)).toEqual(['early morning madness']);
     expect(validationErrors(myForm)).toEqual(['early morning madness']);
     expect(errorMessages(myForm)).toEqual(['early morning madness']);
     expect(firstErrorMessage(myForm)).toBe('early morning madness');
@@ -52,7 +59,7 @@ describe('validations', () => {
 
     expect(isValid(myForm)).toBe(false);
     expect(isInvalid(myForm)).toBe(true);
-    console.log(validationErrors(myForm));
+    expect(ownValidationErrors(myForm)).toEqual([error]);
     expect(validationErrors(myForm)).toEqual([error]);
     expect(errorMessages(myForm)).toEqual(['I am home at last']);
     expect(firstErrorMessage(myForm)).toBe('I am home at last');
@@ -71,6 +78,10 @@ describe('validations', () => {
       () => validationErrors(myForm),
       'validationErrors',
     );
+    const ownValidationErrorsSpy = signalSpy(
+      () => ownValidationErrors(myForm),
+      'ownValidationErrors',
+    );
     const errorMessagesSpy = signalSpy(
       () => errorMessages(myForm),
       'errorMessages',
@@ -84,12 +95,16 @@ describe('validations', () => {
     expect(isInvalidSpy.lastValue()).toBe(false);
     expect(validationErrorsSpy.lastValue()).toEqual([]);
     expect(errorMessagesSpy.lastValue()).toEqual([]);
+    expect(ownValidationErrorsSpy.lastValue()).toEqual([]);
     expect(firstErrorMessageSpy.lastValue()).toBe(null);
 
     myForm.set('hello');
 
     expect(isValidSpy.lastValue()).toBe(false);
     expect(isInvalidSpy.lastValue()).toBe(true);
+    expect(ownValidationErrorsSpy.lastValue()).toEqual([
+      'hello is not allowed',
+    ]);
     expect(validationErrorsSpy.lastValue()).toEqual(['hello is not allowed']);
     expect(errorMessagesSpy.lastValue()).toEqual(['hello is not allowed']);
     expect(firstErrorMessageSpy.lastValue()).toBe('hello is not allowed');
@@ -134,5 +149,88 @@ describe('validations', () => {
     expect(errorMessagesSpy.lastValue()).toEqual([]);
   });
 
-  // todo: add tests for nested forms. We probably want to be able to get accumulated errors in parents extra
+  describe('nested forms', () => {
+    describe('invalid child', () => {
+      it('record', () => {
+        const myForm = form({
+          child: form('hello', [withValidators(() => 'no')]),
+        });
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(ownValidationErrors(myForm)).toEqual([]);
+        expect(validationErrors(myForm)).toEqual(['no']);
+        expect(errorMessages(myForm)).toEqual(['no']);
+        expect(firstErrorMessage(myForm)).toBe('no');
+      });
+
+      it('array', () => {
+        const myForm = form({
+          children: form([form('hello', [withValidators(() => 'no')])]),
+        });
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(ownValidationErrors(myForm)).toEqual([]);
+        expect(validationErrors(myForm)).toEqual(['no']);
+        expect(errorMessages(myForm)).toEqual(['no']);
+        expect(firstErrorMessage(myForm)).toBe('no');
+      });
+    });
+
+    describe('invalid grandchild', () => {
+      it('record', () => {
+        const myForm = form({
+          child: form({
+            grandchild: form('hello', [withValidators(() => 'no')]),
+          }),
+        });
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(ownValidationErrors(myForm)).toEqual([]);
+        expect(validationErrors(myForm)).toEqual(['no']);
+        expect(errorMessages(myForm)).toEqual(['no']);
+        expect(firstErrorMessage(myForm)).toBe('no');
+      });
+    });
+    it('array', () => {
+      const myForm = form([
+        form([form('hello', [withValidators(() => 'no')])]),
+      ]);
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(true);
+      expect(ownValidationErrors(myForm)).toEqual([]);
+      expect(validationErrors(myForm)).toEqual(['no']);
+      expect(errorMessages(myForm)).toEqual(['no']);
+      expect(firstErrorMessage(myForm)).toBe('no');
+    });
+
+    describe('both parent and child invalid', () => {
+      it('record', () => {
+        const myForm = form(
+          {
+            child: form('hello', [withValidators(() => 'child')]),
+          },
+          [withValidators(() => 'parent')],
+        );
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(ownValidationErrors(myForm)).toEqual(['parent']);
+        expect(validationErrors(myForm)).toEqual(['parent', 'child']);
+        expect(errorMessages(myForm)).toEqual(['parent', 'child']);
+        expect(firstErrorMessage(myForm)).toBe('parent');
+      });
+
+      it('array', () => {
+        const myForm = form(
+          [form([form('hello', [withValidators(() => 'child')])])],
+          [withValidators(() => 'parent')],
+        );
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(ownValidationErrors(myForm)).toEqual(['parent']);
+        expect(validationErrors(myForm)).toEqual(['parent', 'child']);
+        expect(errorMessages(myForm)).toEqual(['parent', 'child']);
+        expect(firstErrorMessage(myForm)).toBe('parent');
+      });
+    });
+  });
 });
