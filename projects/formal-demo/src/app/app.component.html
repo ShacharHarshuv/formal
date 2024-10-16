@@ -17,7 +17,14 @@
     [formField]="form.fields().partner"
     [title]="form.fields().partner | disabledHint"
   />
-  <button (click)="save()" type="submit">Save</button>
+  <button
+    [disabled]="!isValid()"
+    [title]="disabledReason()"
+    (click)="save()"
+    type="submit"
+  >
+    Save
+  </button>
   {{ form() | json }}
   <p>Try changing Age to be <18 to see "Partner" getting disabled.</p>
 </form>
@@ -52,7 +59,15 @@
     <mat-label>Partner</mat-label>
     <input [formField]="form.fields().partner" matInput />
   </mat-form-field>
-  <button (click)="save()" mat-raised-button type="submit">Save</button>
+  <button
+    [disabled]="!isValid()"
+    [title]="disabledReason()"
+    (click)="save()"
+    mat-raised-button
+    type="submit"
+  >
+    Save
+  </button>
 </form>
 
 <pre
