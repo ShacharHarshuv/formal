@@ -9,10 +9,14 @@ import {
   untracked,
 } from '@angular/core';
 import {
+  AbstractControl,
   ControlValueAccessor,
+  FormControl,
   NG_VALUE_ACCESSOR,
   NgControl,
+  ValidationErrors as NgValidationErrors,
 } from '@angular/forms';
+import { ownValidationErrors, validators } from '../../form';
 import { FormValue } from '../../form/form';
 import { isDisabled } from '../../form/state/disabled/disabled';
 import { FormFieldDirective } from '../form-field.directive';
@@ -37,8 +41,19 @@ export class ControlValueAccessorFormFieldDirective<
     this._valueAccessor.set(value);
   }
 
+  /**
+   * This is used for backward compatibility with ReactiveForms in places like Angular Material
+   * Do not remove
+   * */
+  readonly control = this._getPseudoControl();
+
+  get disabled() {
+    return this.form ? isDisabled(this.form) : undefined;
+  }
+
   constructor() {
     super();
+
     this.valueAccessor = selectValueAccessor(
       inject(NG_VALUE_ACCESSOR, {
         optional: true,
@@ -75,5 +90,44 @@ export class ControlValueAccessorFormFieldDirective<
         this._valueAccessor()?.setDisabledState?.(value);
       });
     });
+  }
+
+  private _getPseudoControl(): AbstractControl {
+    const formControl = new FormControl();
+
+    effect(() => {
+      formControl.setValue(this.form?.());
+      formControl.markAsTouched(); // todo: we need to separate this once we handle this state
+    });
+
+    const pseudoValidators = computed(() => {
+      const _validators = this.form ? validators(this.form) : [];
+      return _validators
+        .map(({ pseudoNgValidation }) => pseudoNgValidation)
+        .filter((value) => !!value);
+    });
+
+    effect(() => {
+      formControl.setValidators(pseudoValidators());
+    });
+
+    const errors = computed((): NgValidationErrors | null => {
+      const errors = this.form ? ownValidationErrors(this.form) : [];
+      return errors.length > 0
+        ? errors.reduce((ngErrors: NgValidationErrors, error) => {
+            if (typeof error === 'string') {
+              return { ...ngErrors, ...{ [error]: true } };
+            }
+            return { ...ngErrors, ...error };
+          }, {})
+        : null;
+    });
+
+    effect(() => {
+      formControl.setErrors(errors());
+    });
+
+    // todo: forward untouched, touched, pristine, dirty, and pe
+    return formControl;
   }
 }

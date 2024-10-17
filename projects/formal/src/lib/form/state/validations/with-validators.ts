@@ -4,30 +4,47 @@ import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
 import { defineFormState } from '../form-state';
 import { ValidationError, Validator } from './validator';
 
-const [readState, stateFactory] = defineFormState('validations', {
-  default: [],
-  createState: <T extends FormValue>(
-    form: Form<T>,
-    ...validators: Validator<any>[]
-  ) => {
-    return computed(() =>
-      validators
-        .map((validator) => {
-          return validator(form);
-        })
-        .filter((error): error is ValidationError => error !== null),
-    );
+const [readValidations, validationsStateFactory] = defineFormState(
+  'validations',
+  {
+    default: [],
+    createState: (form: Form, ...validators: Validator[]) => {
+      return computed(() => validators);
+    },
   },
-});
+);
+
+export function validators<T extends FormValue>(form: Form<T>): Validator<T>[] {
+  return readValidations(form);
+}
+
+const [readErrors, validationErrorsFactory] = defineFormState(
+  'validationErrors',
+  {
+    default: [],
+    createState: <T extends FormValue>(form: Form<T>) => {
+      return computed(() =>
+        readValidations(form)
+          .map((validator) => {
+            return validator(form);
+          })
+          .filter((error): error is ValidationError => error !== null),
+      );
+    },
+  },
+);
 
 export function withValidators<T extends FormValue>(
   ...validators: Validator<T>[]
 ) {
-  return stateFactory<T, Validator<T>[]>(...validators);
+  return (form: Form<T>) => {
+    validationsStateFactory(...(validators as Validator[]))(form);
+    validationErrorsFactory<T, []>()(form);
+  };
 }
 
 export function ownValidationErrors(form: Form) {
-  return readState(form);
+  return readErrors(form);
 }
 
 export function validationErrors(form: Form): ValidationError[] {

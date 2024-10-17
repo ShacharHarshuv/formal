@@ -3,6 +3,7 @@
 <h2>Native Controls</h2>
 <form>
   <label>Name</label>
+  <!--TODO: figure out how to bind the invalid-ness of the field to the view, in a way that will integrate well with angular material and such-->
   <input [formField]="form.fields().name" />
   <label>Age</label>
   <input [formField]="form.fields().age" type="number" />
@@ -33,6 +34,10 @@
 <form>
   <mat-form-field>
     <mat-label>Name</mat-label>
+    <input [formControl]="formControl" matInput placeholder="Ex. John Smith" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Name</mat-label>
     <input
       [formField]="form.fields().name"
       matInput
@@ -57,7 +62,11 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Partner</mat-label>
-    <input [formField]="form.fields().partner" matInput />
+    <input [formField]="form.fields().partner" matInput test />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Partner</mat-label>
+    <input [formControl]="disabledFc" matInput />
   </mat-form-field>
   <button
     [disabled]="!isValid()"

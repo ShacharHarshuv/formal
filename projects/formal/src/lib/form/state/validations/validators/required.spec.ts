@@ -1,4 +1,4 @@
-import { form } from 'formal';
+import { form, isRequired } from 'formal';
 import { firstErrorMessage } from '../first-error-messages';
 import { isInvalid } from '../is-invalid';
 import { isValid } from '../is-valid';
@@ -6,8 +6,14 @@ import { withValidators } from '../with-validators';
 import { required } from './required';
 
 describe('validations > required', () => {
+  it('no validation', () => {
+    const myForm = form('');
+    expect(isRequired(myForm)).toBe(false);
+  });
+
   it('should work', () => {
     const myForm = form('', [withValidators(required())]);
+    expect(isRequired(myForm)).toBe(true);
     expect(isValid(myForm)).toBe(false);
     expect(isInvalid(myForm)).toBe(true);
     expect(firstErrorMessage(myForm)).toBe(null);

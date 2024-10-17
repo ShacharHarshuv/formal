@@ -1,11 +1,4 @@
-import {
-  Component,
-  effect,
-  forwardRef,
-  inject,
-  signal,
-  Type,
-} from '@angular/core';
+import { Component, forwardRef, inject, signal, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   ControlValueAccessor,
@@ -17,9 +10,6 @@ import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-
 
 abstract class AbstractCustomInputComponent implements ControlValueAccessor {
   disabled = signal(false);
-  e = effect(() => {
-    console.log('disabled', this.disabled());
-  });
   value: string = '';
   onChange = (value: any) => {};
   onTouched = () => {};
