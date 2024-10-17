@@ -34,10 +34,6 @@
 <form>
   <mat-form-field>
     <mat-label>Name</mat-label>
-    <input [formControl]="formControl" matInput placeholder="Ex. John Smith" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Name</mat-label>
     <input
       [formField]="form.fields().name"
       matInput
@@ -63,10 +59,6 @@
   <mat-form-field>
     <mat-label>Partner</mat-label>
     <input [formField]="form.fields().partner" matInput test />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Partner</mat-label>
-    <input [formControl]="disabledFc" matInput />
   </mat-form-field>
   <button
     [disabled]="!isValid()"
