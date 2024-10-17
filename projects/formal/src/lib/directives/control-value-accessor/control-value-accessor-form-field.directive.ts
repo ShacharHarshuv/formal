@@ -1,5 +1,4 @@
 import {
-  ChangeDetectorRef,
   computed,
   Directive,
   effect,
@@ -80,7 +79,6 @@ export class ControlValueAccessorFormFieldDirective<
       });
     });
 
-    const cdRef = inject(ChangeDetectorRef);
     const shouldDisable = computed(() =>
       this.form ? isDisabled(this.form) : false,
     );
