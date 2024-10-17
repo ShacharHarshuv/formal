@@ -106,12 +106,8 @@ export class ControlValueAccessorFormFieldDirective<
     });
 
     effect(() => {
-      const x = pseudoValidators();
-      console.log('validators', x); // todo
-      formControl.setValidators(x);
+      formControl.setValidators(pseudoValidators());
     });
-
-    // formControl.setValidators(Validators.required); // todo
 
     const errors = computed((): NgValidationErrors | null => {
       const errors = this.form ? ownValidationErrors(this.form) : [];

@@ -1,30 +1,10 @@
-import { Component, Directive, DoCheck, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NgControl, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { disabledIf, formalDirectives, required, withValidators } from 'formal';
 import { Form, FormValue, form } from '../../form';
-
-@Directive({
-  selector: '[matInput]',
-  standalone: true,
-})
-class MatInputDirective implements DoCheck {
-  ngControl = inject(NgControl, {
-    optional: true,
-    self: true,
-  });
-
-  constructor() {}
-
-  ngDoCheck() {
-    console.log(this.ngControl);
-    console.log(this.ngControl?.control);
-    console.log(this.ngControl?.control?.hasValidator(Validators.required));
-  }
-}
 
 function createComponentFixtureWithForm<T extends FormValue>(form: Form<T>) {
   @Component({
@@ -46,7 +26,6 @@ function createComponentFixtureWithForm<T extends FormValue>(form: Form<T>) {
       MatInputModule,
       formalDirectives,
       NoopAnimationsModule,
-      MatInputDirective,
     ],
     declarations: [AppComponent],
   }).compileComponents();
