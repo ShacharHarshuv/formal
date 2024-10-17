@@ -58,7 +58,10 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Partner</mat-label>
-    <input [formField]="form.fields().partner" matInput test />
+    <input [formField]="form.fields().partner" matInput />
+    @if (form.fields().partner | disabledHint; as hint) {
+      <mat-hint>{{ hint }}</mat-hint>
+    }
   </mat-form-field>
   <button
     [disabled]="!isValid()"
