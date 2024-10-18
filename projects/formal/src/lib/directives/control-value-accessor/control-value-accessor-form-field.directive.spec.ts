@@ -96,9 +96,9 @@ describe('ControlValueAccessorFormFieldDirective', () => {
 
 function test(name: string, customControlComp: Type<ControlValueAccessor>) {
   describe(name, () => {
-    testFormFieldDirectiveViewBinding({
+    testFormFieldDirectiveViewBinding<string>({
       initialValue: 'initial',
-      newValue: 'new',
+      newValues: ['new'],
       create(...args) {
         @Component({
           template:

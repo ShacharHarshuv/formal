@@ -4,11 +4,11 @@ import { disabledIf } from '../form/state/disabled/disabled';
 
 export function testFormFieldDirectiveViewBinding<T extends FormValue>({
   initialValue,
-  newValue,
+  newValues,
   create,
 }: {
   initialValue: T;
-  newValue: T;
+  newValues: T[];
   create(...args: Parameters<typeof form<T>>): {
     form(): Form<T>;
     viewValue(): T;
@@ -30,16 +30,20 @@ export function testFormFieldDirectiveViewBinding<T extends FormValue>({
       expect(viewInterface.viewValue()).toEqual(initialValue);
     });
 
-    it('should update form -> view', () => {
-      viewInterface.form().set(newValue);
-      viewInterface.fixture().detectChanges();
-      expect(viewInterface.viewValue()).toEqual(newValue);
-    });
+    newValues.forEach((newValue) => {
+      describe(`New Value: ${newValue}`, () => {
+        it('should update form -> view', () => {
+          viewInterface.form().set(newValue);
+          viewInterface.fixture().detectChanges();
+          expect(viewInterface.viewValue()).toEqual(newValue);
+        });
 
-    it('should view -> form', () => {
-      viewInterface.setViewValue(newValue);
-      viewInterface.fixture().detectChanges();
-      expect(viewInterface.form()()).toEqual(newValue);
+        it('should view -> form', () => {
+          viewInterface.setViewValue(newValue);
+          viewInterface.fixture().detectChanges();
+          expect(viewInterface.form()()).toEqual(newValue);
+        });
+      });
     });
   });
 
