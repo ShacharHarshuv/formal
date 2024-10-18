@@ -1,9 +1,11 @@
 import { ControlValueAccessorFormFieldDirective } from './control-value-accessor/control-value-accessor-form-field.directive';
-import { DefaultFormFieldDirective } from './default-form-field.directive';
 import { FormFieldValidationDirective } from './form-field-validation.directive';
+import { NativeStringFormFieldDirective } from './native-string-form-field.directive';
+import { NumberInputFormFieldDirective } from './number-input-form-field.directive';
 
 export const formalDirectives = [
   ControlValueAccessorFormFieldDirective,
-  DefaultFormFieldDirective,
+  NativeStringFormFieldDirective,
+  NumberInputFormFieldDirective,
   FormFieldValidationDirective,
 ];
