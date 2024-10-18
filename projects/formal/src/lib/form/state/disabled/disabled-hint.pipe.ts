@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Form } from '../../form';
+import { ReadonlyForm } from '../../form';
 import { disabledHint } from './disabled';
 
 @Pipe({
@@ -8,7 +8,7 @@ import { disabledHint } from './disabled';
   pure: false,
 })
 export class DisabledHintPipe implements PipeTransform {
-  transform(form: Form) {
+  transform(form: ReadonlyForm) {
     return disabledHint(form);
   }
 }

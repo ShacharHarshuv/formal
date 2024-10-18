@@ -13,6 +13,7 @@ import {
   formalDirectives,
   isValid,
   min,
+  nullable,
   required,
   withValidators,
 } from 'formal';
@@ -41,7 +42,9 @@ import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accesso
 })
 export class AppComponent {
   form = (() => {
-    const age = form(42, [withValidators(min(13, 'Must be at least 13'))]);
+    const age = form(nullable(42), [
+      withValidators(min(13, 'Must be at least 13')),
+    ]);
 
     return form({
       name: form('Sweeney Todd', [
@@ -50,9 +53,15 @@ export class AppComponent {
       age: age,
       gender: 'male',
       partner: form('', [
-        disabledIf(() =>
-          age() < 18 ? 'You must be 18 or older to have a partner' : null,
-        ),
+        disabledIf(() => {
+          if (age() === null) {
+            return 'Please specify your age first';
+          }
+
+          return age()! < 18
+            ? 'You must be 18 or older to have a partner'
+            : null;
+        }),
       ]),
     });
   })();

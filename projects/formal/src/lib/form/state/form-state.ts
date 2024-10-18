@@ -1,7 +1,7 @@
 import { Signal, computed } from '@angular/core';
-import { Form, FormValue } from 'formal';
+import { FormValue } from 'formal';
 import { toGetter } from '../../utility/static-or-getter';
-import { FORM, StateFactory } from '../form';
+import { FORM, ReadonlyForm, StateFactory } from '../form';
 
 export function defineFormState<
   State,
@@ -18,7 +18,7 @@ export function defineFormState<
      * An immutable and reactive state that will be created once when the form initializes
      * */
     createState: <T extends TFormValue>(
-      form: Form<T>,
+      form: ReadonlyForm<T>,
       ...args: Args
     ) => State | Signal<State>;
   },
@@ -43,7 +43,7 @@ export function defineFormState<
       (form[FORM] as any)[symbol] = state;
     };
 
-  const readState = (form: Form<TFormValue>) => {
+  const readState = (form: ReadonlyForm<TFormValue>) => {
     const stateSignal = (form[FORM] as any)?.[symbol] as
       | Signal<State>
       | undefined;

@@ -1,4 +1,4 @@
-import { Signal, WritableSignal, computed, signal } from '@angular/core';
+import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import { OptionalKeys, RequiredKeys } from 'expect-type';
 import { mapValues, omit } from 'lodash';
 import { PARENT } from './parent';
@@ -18,29 +18,55 @@ export type FormValue = PrimitiveFormValue | RecordFormValue | ArrayFormValue;
  * */
 export const FORM = Symbol('FORM');
 
-export type Form<T extends FormValue = FormValue> = WritableSignal<T> & {
+interface BaseForm {
   [FORM]: unknown;
   [PARENT]?: Form;
-} & (T extends Array<infer U>
-    ? {
-        // @ts-ignore
-        fields: Signal<readonly Form<U>[]>;
-      }
+}
+
+export interface Form<in out T extends FormValue = FormValue>
+  extends BaseForm,
+    WritableSignal<T> {
+  [FORM]: unknown;
+  [PARENT]?: Form;
+  fields: T extends Array<infer U>
+    ? Signal<
+        readonly Form<// @ts-ignore
+        U>[]
+      >
     : T extends object
-      ? {
-          fields: Signal<
+      ? Signal<
+          // @ts-ignore
+          { readonly [K in RequiredKeys<T>]: Form<T[K]> } & {
             // @ts-ignore
-            { readonly [K in RequiredKeys<T>]: Form<T[K]> } & {
-              // @ts-ignore
-              readonly [K in OptionalKeys<T>]?: Form<Required<T>[K]>;
-            }
-          >;
-        }
-      : {});
+            readonly [K in OptionalKeys<T>]?: Form<Required<T>[K]>;
+          }
+        >
+      : undefined;
+}
 
-type FormOrValue<T extends FormValue = FormValue> = Form<T> | T;
+// todo: should we have "out" here?
+export interface ReadonlyForm<T extends FormValue = FormValue>
+  extends BaseForm,
+    Signal<T> {
+  fields: T extends Array<infer U>
+    ? Signal<
+        readonly ReadonlyForm<// @ts-ignore
+        U>[]
+      >
+    : T extends object
+      ? Signal<
+          // @ts-ignore
+          { readonly [K in RequiredKeys<T>]: ReadonlyForm<T[K]> } & {
+            // @ts-ignore
+            readonly [K in OptionalKeys<T>]?: ReadonlyForm<Required<T>[K]>;
+          }
+        >
+      : undefined;
+}
 
-type ArrayFormInit<T extends FormValue = FormValue> = FormOrValue<T>[];
+type FormOrValue<T extends FormValue = any> = Form<T> | T;
+
+type ArrayFormInit<T extends FormValue = any> = FormOrValue<T>[];
 
 type RecordFormInit = { [K: string | number]: FormOrValue };
 
@@ -71,7 +97,10 @@ type FormValueFromInit<T extends FormInit> = T extends PrimitiveFormValue
         }
       : never;
 
-function assignParent(field: Form, getParent: () => Form | undefined) {
+function assignParent(
+  field: ReadonlyForm,
+  getParent: () => ReadonlyForm | undefined,
+) {
   Object.defineProperty(field, PARENT, {
     get: getParent,
   });
@@ -79,7 +108,7 @@ function assignParent(field: Form, getParent: () => Form | undefined) {
 
 function formArray<T extends FormValue>(
   initialValue: FormOrValue<T>[],
-  getSelf: () => Form | undefined,
+  getSelf: () => ReadonlyForm | undefined,
 ) {
   const initialFields = initialValue.map((value) => toForm(value));
 
@@ -146,11 +175,9 @@ function formRecord<
   },
 >(
   initialValue: { [K in keyof T]: FormOrValue<T[K]> },
-  getSelf: () => Form | undefined,
+  getSelf: () => ReadonlyForm | undefined,
 ) {
-  const initialFields = mapValues(initialValue, (value) => toForm(value)) as {
-    [K in keyof T]: Form<T[K] & FormValue>;
-  };
+  const initialFields = mapValues(initialValue, (value) => toForm(value));
 
   for (const field of Object.values(initialFields)) {
     assignParent(field, getSelf);
@@ -218,7 +245,7 @@ function formRecord<
  * @internal
  * */
 export type StateFactory<T extends FormValue = FormValue> = (
-  form: Form<T>,
+  form: ReadonlyForm<T>,
 ) => void;
 
 export function form(
@@ -283,3 +310,9 @@ export function form<T extends FormValue>(
 
   return _form;
 }
+
+function f<T extends Form<any>>(form: T) {
+  return form;
+}
+
+const x = f(form(1));

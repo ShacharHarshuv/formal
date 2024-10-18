@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 import { SignalSpy, signalSpy } from '../utility/signal-spy.spec';
-import { form, Form, FormValue } from './form';
+import { form, Form, FormValue, ReadonlyForm } from './form';
 
 describe(form.name, () => {
   it('should be created', () => {
@@ -75,7 +75,7 @@ describe(form.name, () => {
       const myForm = form<{ name: string } | null>({ name: 'Sweeney' });
 
       expectTypeOf(myForm()).toEqualTypeOf<{ name: string } | null>();
-      expectTypeOf(myForm).not.toMatchTypeOf<{ fields: any }>();
+      expectTypeOf(myForm).not.toMatchTypeOf<{ fields: number }>();
     });
 
     it('array', () => {
@@ -100,6 +100,23 @@ describe(form.name, () => {
           ) => (string | number) /* | boolean*/[]
         >();
     });
+  });
+
+  it('types should be invariant', () => {
+    let form1 = form(1);
+    // @ts-expect-error
+    const form2: Form<number | string> = form1;
+    // @ts-expect-error
+    form1 = form2;
+  });
+
+  it('readonly form should be contravariant', () => {
+    let form1: ReadonlyForm<number> = form(1);
+
+    const form2: ReadonlyForm<number | string> = form1;
+
+    // @ts-expect-error
+    form1 = form2;
   });
 
   describe('mutating', () => {
