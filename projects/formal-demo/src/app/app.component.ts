@@ -12,6 +12,7 @@ import {
   form,
   formalDirectives,
   isValid,
+  min,
   required,
   withValidators,
 } from 'formal';
@@ -40,7 +41,7 @@ import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accesso
 })
 export class AppComponent {
   form = (() => {
-    const age = form(42);
+    const age = form(42, [withValidators(min(13, 'Must be at least 13'))]);
 
     return form({
       name: form('Sweeney Todd', [

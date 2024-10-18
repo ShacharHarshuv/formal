@@ -1,4 +1,4 @@
-import { form, isRequired } from 'formal';
+import { form, isRequired, min } from 'formal';
 import { firstErrorMessage } from '../first-error-messages';
 import { isInvalid } from '../is-invalid';
 import { isValid } from '../is-valid';
@@ -46,5 +46,16 @@ describe('validations > required', () => {
 
     myForm.set({ x: 1 });
     expect(isValid(myForm)).toBe(true);
+  });
+
+  it("should not be allowed when it's not needed", () => {
+    // @ts-expect-error
+    form(1, [withValidators(required())]);
+
+    // @ts-expect-error
+    form({ x: 1 }, [withValidators(required())]);
+
+    // @ts-expect-error
+    form(1, [withValidators(required(), min(1))]);
   });
 });
