@@ -1,5 +1,5 @@
 import { Validators } from '@angular/forms';
-import { Form, FormValue } from '../../../form';
+import { FormValue, ReadonlyForm } from '../../../form';
 import { ValidationFn } from '../validator';
 import { validators } from '../with-validators';
 
@@ -24,7 +24,7 @@ export function required<T extends FormValue>(
   return validator;
 }
 
-export function isRequired(form: Form) {
+export function isRequired(form: ReadonlyForm) {
   return validators(form).some(
     (validator) => validator.pseudoNgValidation === Validators.required,
   );

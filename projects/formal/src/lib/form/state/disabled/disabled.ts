@@ -1,6 +1,6 @@
-import { Form } from 'formal';
 import { StaticOrGetter, toGetter } from '../../../utility/static-or-getter';
 import { StaticOrSignal, toSignal } from '../../../utility/static-or-signal';
+import { ReadonlyForm } from '../../form';
 import { PARENT } from '../../parent';
 import { defineFormState } from '../form-state';
 
@@ -10,7 +10,7 @@ const [readState, stateFactory] = defineFormState('disabled', {
   default: false,
   createState: (
     form,
-    isDisabled: StaticOrGetter<StaticOrSignal<DisabledState>, [Form]>,
+    isDisabled: StaticOrGetter<StaticOrSignal<DisabledState>, [ReadonlyForm]>,
   ) => {
     return toSignal(toGetter(isDisabled)(form));
   },
@@ -18,7 +18,7 @@ const [readState, stateFactory] = defineFormState('disabled', {
 
 export const disabledIf = stateFactory;
 
-function readStateRecursively(form: Form): DisabledState {
+function readStateRecursively(form: ReadonlyForm): DisabledState {
   const currentState = readState(form);
   if (typeof currentState === 'string' || currentState === true) {
     return currentState;
@@ -27,11 +27,11 @@ function readStateRecursively(form: Form): DisabledState {
   return form[PARENT] ? readStateRecursively(form[PARENT]) : currentState;
 }
 
-export function isDisabled(form: Form): boolean {
+export function isDisabled(form: ReadonlyForm): boolean {
   return !!readStateRecursively(form);
 }
 
-export function disabledHint(form: Form): string {
+export function disabledHint(form: ReadonlyForm): string {
   const state = readStateRecursively(form);
   return typeof state === 'string' ? state : '';
 }

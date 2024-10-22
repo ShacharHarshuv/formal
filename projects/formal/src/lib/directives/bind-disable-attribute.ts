@@ -1,8 +1,11 @@
 import { computed, effect } from '@angular/core';
-import { Form, isDisabled } from '../form';
+import { isDisabled } from '../form';
+import { ReadonlyForm } from '../form/form';
 import { injectSetProperty } from './set-property';
 
-export function bindDisableAttributeDirective(getForm: () => Form | null) {
+export function bindDisableAttributeDirective(
+  getForm: () => ReadonlyForm | null,
+) {
   const setProperty = injectSetProperty();
   const shouldDisable = computed(() => {
     const form = getForm();

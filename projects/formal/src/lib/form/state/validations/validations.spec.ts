@@ -1,5 +1,5 @@
 import { signalSpy } from '../../../utility/signal-spy.spec';
-import { form, Form } from '../../form';
+import { form, Form, ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
 import { firstErrorMessage } from './first-error-messages';
 import { isInvalid } from './is-invalid';
@@ -134,7 +134,7 @@ describe('validations', () => {
   it('two validators reactive', () => {
     const divisibleBy =
       (n: number): ValidationFn<number> =>
-      (form: Form<number>) => {
+      (form: ReadonlyForm<number>) => {
         return form() % n === 0 ? null : `${form()} is not divisible by ${n}`;
       };
 

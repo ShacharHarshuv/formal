@@ -7,9 +7,11 @@ import { FormFieldDirective } from '../../../formal/src/lib/directives/form-fiel
   imports: [],
   templateUrl: './custom-form-field-number.component.html',
 })
-export class CustomFormFieldNumberComponent extends FormFieldDirective<number> {
+export class CustomFormFieldNumberComponent extends FormFieldDirective<
+  number | null
+> {
   add(diff: number) {
-    this.form?.update((value) => value + diff);
+    this.form?.update((value) => (value ?? 0) + diff);
   }
 
   constructor() {

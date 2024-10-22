@@ -1,6 +1,6 @@
 import { Form, FormValue } from 'formal';
 import { map } from 'lodash';
-import { ArrayFormValue, PrimitiveFormValue } from '../form';
+import { ArrayFormValue, PrimitiveFormValue, ReadonlyForm } from '../form';
 
 export interface FieldDescriptor<
   T extends FormValue,
@@ -11,7 +11,7 @@ export interface FieldDescriptor<
 }
 
 export function fieldsDescriptors<T extends FormValue>(
-  form: Form<T>,
+  form: ReadonlyForm<T>,
 ): T extends PrimitiveFormValue
   ? []
   : T extends ArrayFormValue
@@ -21,7 +21,7 @@ export function fieldsDescriptors<T extends FormValue>(
         T[keyof T],
         keyof T
       >[] {
-  if (!('fields' in form)) {
+  if (!form.fields) {
     // @ts-ignore
     return [];
   }

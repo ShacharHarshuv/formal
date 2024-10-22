@@ -1,7 +1,7 @@
 import { first } from 'lodash';
-import { Form } from '../../form';
+import { ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
 
-export function firstErrorMessage(form: Form) {
+export function firstErrorMessage(form: ReadonlyForm) {
   return first(errorMessages(form)) ?? null;
 }
