@@ -1,5 +1,5 @@
 import { signal, untracked } from '@angular/core';
-import { fakeAsync, flush, tick } from '@angular/core/testing';
+import { fakeAsync, flush } from '@angular/core/testing';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { form, Form, ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
@@ -237,8 +237,7 @@ describe('validations', () => {
     });
   });
 
-  // todo
-  fit('async validators', fakeAsync(() => {
+  it('async validators', fakeAsync(() => {
     async function isNameUsed(name: string) {
       await new Promise((resolve) => {
         return setTimeout(resolve, 1000);
@@ -277,7 +276,7 @@ describe('validations', () => {
     expect(isPending(myForm)).toBe(true);
     expect(validationErrors(myForm)).toEqual([]);
 
-    tick(2000);
+    flush();
 
     expect(isValid(myForm)).toBe(false);
     expect(isInvalid(myForm)).toBe(true);

@@ -1,5 +1,5 @@
 import { computed } from '@angular/core';
-import { FormValue, ValidationState } from 'formal';
+import { FormValue, PENDING_VALIDATION, ValidationState } from 'formal';
 import { ReadonlyForm } from '../../form';
 import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
 import { defineFormState } from '../form-state';
@@ -56,8 +56,8 @@ export function validationStates(form: ReadonlyForm): ValidationState[] {
   return [...ownErrors, ...childrenErrors.flat()];
 }
 
-function isError(error: ValidationState): error is ValidationError {
-  return typeof error === 'string';
+function isError(state: ValidationState): state is ValidationError {
+  return state !== null && state !== PENDING_VALIDATION;
 }
 
 export function ownValidationErrors(form: ReadonlyForm) {

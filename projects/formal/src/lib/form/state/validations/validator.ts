@@ -17,14 +17,14 @@ export type ValidationState =
 
 // todo: support promise?
 // will be run in reactive context
-export type ValidationFn<Value extends FormValue = FormValue> = ((
+export type ValidationFn<Value extends FormValue = FormValue> = (
   form: ReadonlyForm<Value>,
-) => ValidationState) & {
-  // todo: support promise as well
-  /**
-   * Used for backward compatibility to Angular reactive forms, in implementation like Angular Material, where required indication is explicitly looking for the ReactiveForms' built-in validator
-   * */
-  pseudoNgValidation?: NgValidatorFn;
-};
+) => ValidationState;
 export type Validator<Value extends FormValue = FormValue> =
-  ValidationFn<Value>;
+  ValidationFn<Value> & {
+    // todo: support promise as well
+    /**
+     * Used for backward compatibility to Angular reactive forms, in implementation like Angular Material, where required indication is explicitly looking for the ReactiveForms' built-in validator
+     * */
+    pseudoNgValidation?: NgValidatorFn;
+  };
