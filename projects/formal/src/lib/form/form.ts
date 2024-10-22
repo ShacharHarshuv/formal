@@ -23,8 +23,10 @@ interface BaseForm {
   [PARENT]?: Form;
 }
 
-export interface Form<in out T extends FormValue = FormValue>
-  extends BaseForm,
+export interface Form<
+  in out T extends FormValue = FormValue,
+  out TValid extends T = T,
+> extends BaseForm,
     WritableSignal<T> {
   [FORM]: unknown;
   [PARENT]?: Form;
@@ -45,8 +47,10 @@ export interface Form<in out T extends FormValue = FormValue>
 }
 
 // todo: should we have "out" here?
-export interface ReadonlyForm<T extends FormValue = FormValue>
-  extends BaseForm,
+export interface ReadonlyForm<
+  T extends FormValue = FormValue,
+  TValid extends T = T,
+> extends BaseForm,
     Signal<T> {
   fields: T extends Array<infer U>
     ? Signal<
@@ -244,41 +248,47 @@ function formRecord<
 /**
  * @internal
  * */
-export type StateFactory<T extends FormValue = FormValue> = (
-  form: ReadonlyForm<T>,
-) => void;
+export type StateFactory<
+  T extends FormValue = FormValue,
+  Valid extends T = T,
+> = (form: ReadonlyForm<T, Valid>) => void;
 
-export function form(
+export function form<Valid extends string>(
   initialValue: string,
-  states?: StateFactory<string>[],
-): Form<string>;
-export function form(
+  states?: StateFactory<string, Valid>[],
+): Form<string, Valid>;
+export function form<Valid extends number>(
   initialValue: number,
-  states?: StateFactory<number>[],
-): Form<number>;
-export function form(
+  states?: StateFactory<number, Valid>[],
+): Form<number, Valid>;
+export function form<Valid extends boolean>(
   initialValue: boolean,
-  states?: StateFactory<boolean>[],
-): Form<boolean>;
+  states?: StateFactory<boolean, Valid>[],
+): Form<boolean, Valid>;
 // to conserve the type name in the simple case where the input type could also be used as a value directly
-export function form<T extends FormValue>(
+export function form<T extends FormValue, Valid extends T = T>(
   initialValue: T,
-  states?: StateFactory<NoInfer<T>>[],
-): Form<T>;
+  states?: StateFactory<NoInfer<T>, Valid>[],
+): Form<T, Valid>;
 // These overload is used for generic inference only, and is not meant to be manually passed by consumers
-export function form<T extends FormInit, Dummy extends never>(
+// todo: we probably need to make some changes here to infer the valid value of child fields
+export function form<
+  T extends FormInit,
+  Dummy extends never,
+  Valid extends FormValueFromInit<T>,
+>(
   initialValue: T,
-  states?: StateFactory<FormValueFromInit<NoInfer<T>>>[],
-): Form<FormValueFromInit<T>>;
+  states?: StateFactory<FormValueFromInit<NoInfer<T>>, Valid>[],
+): Form<FormValueFromInit<T>, Valid>;
 // this overload is used for explicitly passing the form value to the generic
-export function form<T extends FormValue>(
+export function form<T extends FormValue, Valid extends T>(
   initialValue: T | FormInitFromValue<T>,
-  states?: StateFactory<NoInfer<T>>[],
-): Form<T>;
-export function form<T extends FormValue>(
+  states?: StateFactory<NoInfer<T>, Valid>[],
+): Form<T, Valid>;
+export function form<T extends FormValue, Valid extends T>(
   initialValue: FormInitFromValue<T>,
-  states: StateFactory<NoInfer<T>>[] = [],
-): Form<T> {
+  states: StateFactory<NoInfer<T>, Valid>[] = [],
+): Form<T, Valid> {
   let _form: Form<NoInfer<T>>;
 
   const getSelf = () => _form;

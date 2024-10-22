@@ -1,6 +1,6 @@
 import { computed } from '@angular/core';
 import { FormValue } from 'formal';
-import { ReadonlyForm } from '../../form';
+import { ReadonlyForm, StateFactory } from '../../form';
 import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
 import { defineFormState } from '../form-state';
 import { ValidationError, Validator } from './validator';
@@ -37,10 +37,14 @@ const [readErrors, validationErrorsFactory] = defineFormState(
   },
 );
 
-export function withValidators<T extends FormValue>(
-  ...validators: Validator<T>[]
-) {
-  return (form: ReadonlyForm<T>) => {
+type TupleIntersection<T extends any[]> = T extends [infer First, ...infer Rest]
+  ? First & TupleIntersection<Rest>
+  : unknown;
+
+export function withValidators<T extends FormValue, TValids extends T[]>(
+  ...validators: { [K in keyof TValids]: Validator<T, TValids[K]> }
+): StateFactory<T, TupleIntersection<TValids> & T> {
+  return (form) => {
     validationsStateFactory(...(validators as Validator[]))(form);
     validationErrorsFactory<T, []>()(form);
   };
