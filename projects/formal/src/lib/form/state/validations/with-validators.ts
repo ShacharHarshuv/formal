@@ -1,5 +1,5 @@
 import { computed } from '@angular/core';
-import { FormValue } from 'formal';
+import { FormValue, ValidationState } from 'formal';
 import { ReadonlyForm } from '../../form';
 import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
 import { defineFormState } from '../form-state';
@@ -27,11 +27,9 @@ const [readErrors, validationErrorsFactory] = defineFormState(
     default: [],
     createState: <T extends FormValue>(form: ReadonlyForm<T>) => {
       return computed(() =>
-        readValidations(form)
-          .map((validator) => {
-            return validator(form);
-          })
-          .filter((error): error is ValidationError => error !== null),
+        readValidations(form).map((validator) => {
+          return validator(form);
+        }),
       );
     },
   },
@@ -46,14 +44,25 @@ export function withValidators<T extends FormValue>(
   };
 }
 
-export function ownValidationErrors(form: ReadonlyForm) {
+export function ownValidationStates(form: ReadonlyForm) {
   return readErrors(form);
 }
 
-export function validationErrors(form: ReadonlyForm): ValidationError[] {
-  const ownErrors = ownValidationErrors(form);
+export function validationStates(form: ReadonlyForm): ValidationState[] {
+  const ownErrors = ownValidationStates(form);
   const children = fieldsDescriptors(form);
   const childrenErrors = children.map(({ form }) => validationErrors(form));
 
   return [...ownErrors, ...childrenErrors.flat()];
+}
+
+function isError(error: ValidationState): error is ValidationError {
+  return typeof error === 'string';
+}
+
+export function ownValidationErrors(form: ReadonlyForm) {
+  return ownValidationStates(form).filter(isError);
+}
+export function validationErrors(form: ReadonlyForm) {
+  return validationStates(form).filter(isError);
 }

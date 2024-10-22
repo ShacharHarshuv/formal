@@ -1,10 +1,13 @@
+import { signal, untracked } from '@angular/core';
+import { fakeAsync, flush, tick } from '@angular/core/testing';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { form, Form, ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
 import { firstErrorMessage } from './first-error-messages';
 import { isInvalid } from './is-invalid';
+import { isPending } from './is-pending';
 import { isValid } from './is-valid';
-import { ValidationFn } from './validator';
+import { PENDING_VALIDATION, ValidationFn } from './validator';
 import {
   ownValidationErrors,
   validationErrors,
@@ -233,4 +236,65 @@ describe('validations', () => {
       });
     });
   });
+
+  // todo
+  fit('async validators', fakeAsync(() => {
+    async function isNameUsed(name: string) {
+      await new Promise((resolve) => {
+        return setTimeout(resolve, 1000);
+      });
+
+      return name === 'hello' ? 'name is already used' : null;
+    }
+
+    let lastName: string | null = null;
+    const isNameUsedResponse = signal<
+      string | typeof PENDING_VALIDATION | null
+    >(null);
+
+    // todo: we also need a way to cancel the validation
+    const asyncValidator: ValidationFn<string> = (
+      form: ReadonlyForm<string>,
+    ) => {
+      // todo: not sure this is the best approach. We don't want side effects, and we want to be able to use different validators at the same time
+      if (lastName !== form()) {
+        untracked(() => {
+          isNameUsedResponse.set(PENDING_VALIDATION);
+          isNameUsed(form()).then((errors) => {
+            isNameUsedResponse.set(errors);
+          });
+          lastName = form();
+        });
+      }
+
+      return isNameUsedResponse();
+    };
+
+    const myForm = form('hello', [withValidators(asyncValidator)]);
+
+    expect(isValid(myForm)).toBe(false);
+    expect(isInvalid(myForm)).toBe(false);
+    expect(isPending(myForm)).toBe(true);
+    expect(validationErrors(myForm)).toEqual([]);
+
+    tick(2000);
+
+    expect(isValid(myForm)).toBe(false);
+    expect(isInvalid(myForm)).toBe(true);
+    expect(isPending(myForm)).toBe(false);
+    expect(validationErrors(myForm)).toEqual(['name is already used']);
+
+    myForm.set('world');
+    expect(isValid(myForm)).toBe(false);
+    expect(isInvalid(myForm)).toBe(false);
+    expect(isPending(myForm)).toBe(true);
+    expect(validationErrors(myForm)).toEqual([]);
+
+    flush();
+
+    expect(isValid(myForm)).toBe(true);
+    expect(isInvalid(myForm)).toBe(false);
+    expect(isPending(myForm)).toBe(false);
+    expect(validationErrors(myForm)).toEqual([]);
+  }));
 });
