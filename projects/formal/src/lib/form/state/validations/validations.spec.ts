@@ -1,10 +1,12 @@
+import { signal } from '@angular/core';
+import { fakeAsync } from '@angular/core/testing';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { form, Form, ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
 import { firstErrorMessage } from './first-error-messages';
 import { isInvalid } from './is-invalid';
 import { isValid } from './is-valid';
-import { ValidationFn } from './validator';
+import { PENDING_VALIDATION, ValidationFn } from './validator';
 import {
   ownValidationErrors,
   validationErrors,
@@ -233,4 +235,33 @@ describe('validations', () => {
       });
     });
   });
+
+  // todo
+  fit('async validators', fakeAsync(() => {
+    async function isNameUsed(name: string) {
+      await new Promise(() => {
+        return setTimeout(() => {}, 1000);
+      });
+
+      return name === 'hello' ? 'name is already used' : null;
+    }
+
+    // todo: we also need a way to cancel the validation
+    const asyncValidator: ValidationFn<string> = (
+      form: ReadonlyForm<string>,
+    ) => {
+      const responseSignal = signal<string | typeof PENDING_VALIDATION | null>(
+        PENDING_VALIDATION,
+      );
+
+      isNameUsed(form()).then((errors) => responseSignal.set(errors));
+
+      return responseSignal;
+    };
+
+    const myForm = form('hello', [withValidators(asyncValidator)]);
+
+    expect(isValid(myForm)).toBe(false);
+    expect(isInvalid(myForm)).toBe(false);
+  }));
 });

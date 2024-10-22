@@ -1,5 +1,5 @@
 import { computed } from '@angular/core';
-import { FormValue } from 'formal';
+import { FormValue, PENDING_VALIDATION } from 'formal';
 import { ReadonlyForm } from '../../form';
 import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
 import { defineFormState } from '../form-state';
@@ -50,7 +50,9 @@ export function ownValidationErrors(form: ReadonlyForm) {
   return readErrors(form);
 }
 
-export function validationErrors(form: ReadonlyForm): ValidationError[] {
+export function validationErrors(
+  form: ReadonlyForm,
+): (ValidationError | typeof PENDING_VALIDATION)[] {
   const ownErrors = ownValidationErrors(form);
   const children = fieldsDescriptors(form);
   const childrenErrors = children.map(({ form }) => validationErrors(form));
