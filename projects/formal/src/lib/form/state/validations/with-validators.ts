@@ -34,12 +34,16 @@ const [readErrors, validationErrorsFactory] = defineFormState(
         (validator) => {
           let lastPromise: Promise<unknown> | undefined;
           let lastPromiseValue: Signal<ValidationState> | undefined;
+          let lastAbortController: AbortController | undefined;
 
           const validatorResult = computed(() => {
+            lastAbortController?.abort();
+
             lastPromise = undefined;
             lastPromiseValue = undefined;
-            const abortController = new AbortController(); // todo: we need to use this signal somehow when the response is no longer relevant
-            return validator(form, abortController.signal);
+
+            lastAbortController = new AbortController();
+            return validator(form, lastAbortController.signal);
           });
 
           return computed(() => {
@@ -54,10 +58,11 @@ const [readErrors, validationErrorsFactory] = defineFormState(
                       const promiseValue =
                         signal<ValidationState>(PENDING_VALIDATION);
                       result
-                        .catch((error) => {
+                        .catch((error): ValidationState => {
                           lastPromise = undefined;
                           lastPromiseValue = undefined;
-                          throw error;
+                          console.error(error);
+                          return PENDING_VALIDATION;
                         })
                         .then((state) => {
                           promiseValue.set(state);

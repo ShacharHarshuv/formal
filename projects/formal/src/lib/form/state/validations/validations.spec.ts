@@ -1,5 +1,5 @@
 import { signal, untracked } from '@angular/core';
-import { fakeAsync, flush } from '@angular/core/testing';
+import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { form, Form, ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
@@ -246,7 +246,7 @@ describe('validations', () => {
       return name === 'hello' ? 'name is already used' : null;
     }
 
-    it('manually using PENDING state', fakeAsync(() => {
+    describe('manually using PENDING state', () => {
       let lastName: string | null = null;
       const isNameUsedResponse = signal<
         string | typeof PENDING_VALIDATION | null
@@ -268,63 +268,164 @@ describe('validations', () => {
         return isNameUsedResponse();
       };
 
-      const myForm = form('hello', [withValidators(asyncValidator)]);
+      let myForm: Form<string>;
 
-      expect(isValid(myForm)).toBe(false);
-      expect(isInvalid(myForm)).toBe(false);
-      expect(isPending(myForm)).toBe(true);
-      expect(validationErrors(myForm)).toEqual([]);
+      beforeEach(() => {
+        myForm = form('hello', [withValidators(asyncValidator)]);
+        lastName = null;
+      });
 
-      flush();
+      it('no active listener', fakeAsync(() => {
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(true);
+        expect(validationErrors(myForm)).toEqual([]);
 
-      expect(isValid(myForm)).toBe(false);
-      expect(isInvalid(myForm)).toBe(true);
-      expect(isPending(myForm)).toBe(false);
-      expect(validationErrors(myForm)).toEqual(['name is already used']);
+        flush();
 
-      myForm.set('world');
-      expect(isValid(myForm)).toBe(false);
-      expect(isInvalid(myForm)).toBe(false);
-      expect(isPending(myForm)).toBe(true);
-      expect(validationErrors(myForm)).toEqual([]);
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(isPending(myForm)).toBe(false);
+        expect(validationErrors(myForm)).toEqual(['name is already used']);
 
-      flush();
+        myForm.set('world');
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(true);
+        expect(validationErrors(myForm)).toEqual([]);
 
-      expect(isValid(myForm)).toBe(true);
-      expect(isInvalid(myForm)).toBe(false);
-      expect(isPending(myForm)).toBe(false);
-      expect(validationErrors(myForm)).toEqual([]);
-    }));
+        flush();
 
-    it('using async function', fakeAsync(() => {
-      const myForm = form('hello', [
-        withValidators((form) => isNameUsed(form())),
-      ]);
+        expect(isValid(myForm)).toBe(true);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(false);
+        expect(validationErrors(myForm)).toEqual([]);
+      }));
 
-      expect(isValid(myForm)).toBe(false);
-      expect(isInvalid(myForm)).toBe(false);
-      expect(isPending(myForm)).toBe(true);
-      expect(validationErrors(myForm)).toEqual([]);
+      it('active listeners', fakeAsync(() => {
+        const isValidSpy = signalSpy(() => isValid(myForm), 'isValid');
+        const isInvalidSpy = signalSpy(() => isInvalid(myForm), 'isInvalid');
+        const isPendingSpy = signalSpy(() => isPending(myForm), 'isPending');
 
-      flush();
+        expect(isValidSpy.lastValue()).toBe(false);
+        expect(isInvalidSpy.lastValue()).toBe(false);
+        expect(isPendingSpy.lastValue()).toBe(true);
 
-      expect(isValid(myForm)).toBe(false);
-      expect(isInvalid(myForm)).toBe(true);
-      expect(isPending(myForm)).toBe(false);
-      expect(validationErrors(myForm)).toEqual(['name is already used']);
+        flush();
 
-      myForm.set('world');
-      expect(isValid(myForm)).toBe(false);
-      expect(isInvalid(myForm)).toBe(false);
-      expect(isPending(myForm)).toBe(true);
-      expect(validationErrors(myForm)).toEqual([]);
+        expect(isValidSpy.lastValue()).toBe(false);
+        expect(isInvalidSpy.lastValue()).toBe(true);
+        expect(isPendingSpy.lastValue()).toBe(false);
+      }));
+    });
 
-      flush();
+    describe('using async function', () => {
+      let myForm: Form<string>;
 
-      expect(isValid(myForm)).toBe(true);
-      expect(isInvalid(myForm)).toBe(false);
-      expect(isPending(myForm)).toBe(false);
-      expect(validationErrors(myForm)).toEqual([]);
-    }));
+      beforeEach(() => {
+        myForm = form('hello', [withValidators((form) => isNameUsed(form()))]);
+      });
+
+      it('no active listeners', fakeAsync(() => {
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(true);
+        expect(validationErrors(myForm)).toEqual([]);
+
+        flush();
+
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(true);
+        expect(isPending(myForm)).toBe(false);
+        expect(validationErrors(myForm)).toEqual(['name is already used']);
+
+        myForm.set('world');
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(true);
+        expect(validationErrors(myForm)).toEqual([]);
+
+        flush();
+
+        expect(isValid(myForm)).toBe(true);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(false);
+        expect(validationErrors(myForm)).toEqual([]);
+      }));
+
+      it('active listeners', fakeAsync(() => {
+        const isValidSpy = signalSpy(() => isValid(myForm), 'isValid');
+        const isInvalidSpy = signalSpy(() => isInvalid(myForm), 'isInvalid');
+        const isPendingSpy = signalSpy(() => isPending(myForm), 'isPending');
+
+        expect(isValidSpy.lastValue()).toBe(false);
+        expect(isInvalidSpy.lastValue()).toBe(false);
+        expect(isPendingSpy.lastValue()).toBe(true);
+
+        flush();
+
+        expect(isValidSpy.lastValue()).toBe(false);
+        expect(isInvalidSpy.lastValue()).toBe(true);
+        expect(isPendingSpy.lastValue()).toBe(false);
+      }));
+    });
+
+    describe('aborting async validation', () => {
+      let abortSpy: jasmine.Spy;
+      let myForm: Form<string>;
+
+      beforeEach(() => {
+        abortSpy = jasmine.createSpy('abortSpy');
+        myForm = form('hello', [
+          withValidators((form, abortSignal) => {
+            form(); // listening on form value change
+            return new Promise((resolve, reject) => {
+              if (abortSignal.aborted) {
+                return reject('aborted');
+              }
+
+              abortSignal.addEventListener('abort', () => {
+                abortSpy();
+                reject('aborted');
+              });
+            });
+          }),
+        ]);
+      });
+
+      it('no active listeners', fakeAsync(() => {
+        expect(isValid(myForm)).toBe(false);
+        expect(isInvalid(myForm)).toBe(false);
+        expect(isPending(myForm)).toBe(true);
+        expect(validationErrors(myForm)).toEqual([]);
+
+        tick(1000);
+
+        expect(isPending(myForm)).toBe(true);
+
+        myForm.set('world');
+        expect(isPending(myForm)).toBe(true);
+        expect(abortSpy).toHaveBeenCalled();
+      }));
+
+      it('active listeners', fakeAsync(() => {
+        const isValidSpy = signalSpy(() => isValid(myForm), 'isValid');
+        const isInvalidSpy = signalSpy(() => isInvalid(myForm), 'isInvalid');
+        const isPendingSpy = signalSpy(() => isPending(myForm), 'isPending');
+
+        expect(isValidSpy.lastValue()).toBe(false);
+        expect(isInvalidSpy.lastValue()).toBe(false);
+        expect(isPendingSpy.lastValue()).toBe(true);
+
+        tick(1000);
+
+        expect(isPendingSpy.lastValue()).toBe(true);
+
+        myForm.set('world');
+        TestBed.flushEffects(); // when they are active listeners, we expect the call to be aborted even without manually reading any state
+        expect(abortSpy).toHaveBeenCalled();
+        expect(isPendingSpy.lastValue()).toBe(true);
+      }));
+    });
   });
 });
