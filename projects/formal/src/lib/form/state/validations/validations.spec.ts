@@ -237,7 +237,7 @@ describe('validations', () => {
     });
   });
 
-  it('async validators', fakeAsync(() => {
+  describe('async validations', () => {
     async function isNameUsed(name: string) {
       await new Promise((resolve) => {
         return setTimeout(resolve, 1000);
@@ -246,54 +246,85 @@ describe('validations', () => {
       return name === 'hello' ? 'name is already used' : null;
     }
 
-    let lastName: string | null = null;
-    const isNameUsedResponse = signal<
-      string | typeof PENDING_VALIDATION | null
-    >(null);
+    it('manually using PENDING state', fakeAsync(() => {
+      let lastName: string | null = null;
+      const isNameUsedResponse = signal<
+        string | typeof PENDING_VALIDATION | null
+      >(null);
 
-    // todo: we also need a way to cancel the validation
-    const asyncValidator: ValidationFn<string> = (
-      form: ReadonlyForm<string>,
-    ) => {
-      // todo: not sure this is the best approach. We don't want side effects, and we want to be able to use different validators at the same time
-      if (lastName !== form()) {
-        untracked(() => {
-          isNameUsedResponse.set(PENDING_VALIDATION);
-          isNameUsed(form()).then((errors) => {
-            isNameUsedResponse.set(errors);
+      const asyncValidator: ValidationFn<string> = (
+        form: ReadonlyForm<string>,
+      ) => {
+        if (lastName !== form()) {
+          untracked(() => {
+            isNameUsedResponse.set(PENDING_VALIDATION);
+            isNameUsed(form()).then((errors) => {
+              isNameUsedResponse.set(errors);
+            });
+            lastName = form();
           });
-          lastName = form();
-        });
-      }
+        }
 
-      return isNameUsedResponse();
-    };
+        return isNameUsedResponse();
+      };
 
-    const myForm = form('hello', [withValidators(asyncValidator)]);
+      const myForm = form('hello', [withValidators(asyncValidator)]);
 
-    expect(isValid(myForm)).toBe(false);
-    expect(isInvalid(myForm)).toBe(false);
-    expect(isPending(myForm)).toBe(true);
-    expect(validationErrors(myForm)).toEqual([]);
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(false);
+      expect(isPending(myForm)).toBe(true);
+      expect(validationErrors(myForm)).toEqual([]);
 
-    flush();
+      flush();
 
-    expect(isValid(myForm)).toBe(false);
-    expect(isInvalid(myForm)).toBe(true);
-    expect(isPending(myForm)).toBe(false);
-    expect(validationErrors(myForm)).toEqual(['name is already used']);
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(true);
+      expect(isPending(myForm)).toBe(false);
+      expect(validationErrors(myForm)).toEqual(['name is already used']);
 
-    myForm.set('world');
-    expect(isValid(myForm)).toBe(false);
-    expect(isInvalid(myForm)).toBe(false);
-    expect(isPending(myForm)).toBe(true);
-    expect(validationErrors(myForm)).toEqual([]);
+      myForm.set('world');
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(false);
+      expect(isPending(myForm)).toBe(true);
+      expect(validationErrors(myForm)).toEqual([]);
 
-    flush();
+      flush();
 
-    expect(isValid(myForm)).toBe(true);
-    expect(isInvalid(myForm)).toBe(false);
-    expect(isPending(myForm)).toBe(false);
-    expect(validationErrors(myForm)).toEqual([]);
-  }));
+      expect(isValid(myForm)).toBe(true);
+      expect(isInvalid(myForm)).toBe(false);
+      expect(isPending(myForm)).toBe(false);
+      expect(validationErrors(myForm)).toEqual([]);
+    }));
+
+    it('using async function', fakeAsync(() => {
+      const myForm = form('hello', [
+        withValidators((form) => isNameUsed(form())),
+      ]);
+
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(false);
+      expect(isPending(myForm)).toBe(true);
+      expect(validationErrors(myForm)).toEqual([]);
+
+      flush();
+
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(true);
+      expect(isPending(myForm)).toBe(false);
+      expect(validationErrors(myForm)).toEqual(['name is already used']);
+
+      myForm.set('world');
+      expect(isValid(myForm)).toBe(false);
+      expect(isInvalid(myForm)).toBe(false);
+      expect(isPending(myForm)).toBe(true);
+      expect(validationErrors(myForm)).toEqual([]);
+
+      flush();
+
+      expect(isValid(myForm)).toBe(true);
+      expect(isInvalid(myForm)).toBe(false);
+      expect(isPending(myForm)).toBe(false);
+      expect(validationErrors(myForm)).toEqual([]);
+    }));
+  });
 });

@@ -1,6 +1,5 @@
-import { Signal, computed } from '@angular/core';
+import { Signal } from '@angular/core';
 import { FormValue } from 'formal';
-import { toGetter } from '../../utility/static-or-getter';
 import { FORM, ReadonlyForm, StateFactory } from '../form';
 
 export function defineFormState<
@@ -20,7 +19,7 @@ export function defineFormState<
     createState: <T extends TFormValue>(
       form: ReadonlyForm<T>,
       ...args: Args
-    ) => State | Signal<State>;
+    ) => Signal<State>;
   },
 ) {
   const symbol = Symbol(description);
@@ -30,9 +29,7 @@ export function defineFormState<
       ...args: TArgs
     ): StateFactory<T> =>
     (form) => {
-      const state = computed(() => {
-        return toGetter(config.createState(form, ...args))();
-      });
+      const state = config.createState(form, ...args);
 
       if ((form[FORM] as any)[symbol]) {
         throw new Error(

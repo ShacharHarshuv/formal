@@ -15,14 +15,14 @@ export type ValidationState =
   | typeof PENDING_VALIDATION
   | null;
 
-// todo: support promise?
 // will be run in reactive context
 export type ValidationFn<Value extends FormValue = FormValue> = (
   form: ReadonlyForm<Value>,
-) => ValidationState;
+  abortSignal: AbortSignal,
+) => ValidationState | Promise<ValidationState>;
+
 export type Validator<Value extends FormValue = FormValue> =
   ValidationFn<Value> & {
-    // todo: support promise as well
     /**
      * Used for backward compatibility to Angular reactive forms, in implementation like Angular Material, where required indication is explicitly looking for the ReactiveForms' built-in validator
      * */

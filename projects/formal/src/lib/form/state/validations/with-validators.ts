@@ -1,4 +1,4 @@
-import { computed } from '@angular/core';
+import { computed, signal, Signal, untracked } from '@angular/core';
 import { FormValue, PENDING_VALIDATION, ValidationState } from 'formal';
 import { ReadonlyForm } from '../../form';
 import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
@@ -25,12 +25,61 @@ const [readErrors, validationErrorsFactory] = defineFormState(
   'validationErrors',
   {
     default: [],
-    createState: <T extends FormValue>(form: ReadonlyForm<T>) => {
-      return computed(() =>
-        readValidations(form).map((validator) => {
-          return validator(form);
-        }),
+    createState: <T extends FormValue>(
+      form: ReadonlyForm<T>,
+    ): Signal<ValidationState[]> => {
+      const validations = readValidations(form); // validations are static and don't depend on the form, so they don't need to be inside a computed
+
+      const validationStates: Signal<ValidationState>[] = validations.map(
+        (validator) => {
+          let lastPromise: Promise<unknown> | undefined;
+          let lastPromiseValue: Signal<ValidationState> | undefined;
+
+          const validatorResult = computed(() => {
+            lastPromise = undefined;
+            lastPromiseValue = undefined;
+            const abortController = new AbortController(); // todo: we need to use this signal somehow when the response is no longer relevant
+            return validator(form, abortController.signal);
+          });
+
+          return computed(() => {
+            const result = validatorResult();
+
+            if (result instanceof Promise) {
+              const promiseValue =
+                lastPromise === result
+                  ? lastPromiseValue!
+                  : untracked(() => {
+                      lastPromise = result;
+                      const promiseValue =
+                        signal<ValidationState>(PENDING_VALIDATION);
+                      result
+                        .catch((error) => {
+                          lastPromise = undefined;
+                          lastPromiseValue = undefined;
+                          throw error;
+                        })
+                        .then((state) => {
+                          promiseValue.set(state);
+                        });
+                      lastPromiseValue = promiseValue;
+                      return promiseValue;
+                    });
+
+              if (promiseValue() !== PENDING_VALIDATION) {
+                lastPromise = undefined;
+                lastPromiseValue = undefined;
+              }
+
+              return promiseValue();
+            } else {
+              return result;
+            }
+          });
+        },
       );
+
+      return computed(() => validationStates.map((state) => state()));
     },
   },
 );
