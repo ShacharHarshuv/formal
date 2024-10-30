@@ -1,6 +1,6 @@
 import { ReadonlyForm } from '../../form';
-import { validationErrors } from './with-validators';
+import { validationStates } from './with-validators';
 
 export function isValid(form: ReadonlyForm) {
-  return validationErrors(form).length === 0;
+  return validationStates(form).filter((value) => value !== null).length === 0;
 }

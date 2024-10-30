@@ -1,5 +1,5 @@
+import { computed } from '@angular/core';
 import { StaticOrGetter, toGetter } from '../../../utility/static-or-getter';
-import { StaticOrSignal, toSignal } from '../../../utility/static-or-signal';
 import { ReadonlyForm } from '../../form';
 import { PARENT } from '../../parent';
 import { defineFormState } from '../form-state';
@@ -10,9 +10,12 @@ const [readState, stateFactory] = defineFormState('disabled', {
   default: false,
   createState: (
     form,
-    isDisabled: StaticOrGetter<StaticOrSignal<DisabledState>, [ReadonlyForm]>,
+    isDisabled: StaticOrGetter<DisabledState, [ReadonlyForm]>,
   ) => {
-    return toSignal(toGetter(isDisabled)(form));
+    const getIsDisabled = toGetter(isDisabled);
+    return computed(() => {
+      return getIsDisabled(form);
+    });
   },
 });
 
