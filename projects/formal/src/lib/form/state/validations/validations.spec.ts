@@ -3,7 +3,7 @@ import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { form, Form, ReadonlyForm } from '../../form';
 import { errorMessages } from './error-messages';
-import { firstErrorMessage } from './first-error-messages';
+import { firstErrorMessage } from './first-error-message';
 import { isInvalid } from './is-invalid';
 import { isPending } from './is-pending';
 import { isValid } from './is-valid';

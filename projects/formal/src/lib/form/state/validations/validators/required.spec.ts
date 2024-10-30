@@ -1,5 +1,5 @@
 import { form, isRequired, min } from 'formal';
-import { firstErrorMessage } from '../first-error-messages';
+import { firstErrorMessage } from '../first-error-message';
 import { isInvalid } from '../is-invalid';
 import { isValid } from '../is-valid';
 import { withValidators } from '../with-validators';

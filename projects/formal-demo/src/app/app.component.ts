@@ -11,6 +11,7 @@ import {
   firstErrorMessage,
   form,
   formalDirectives,
+  isPending,
   isValid,
   min,
   nullable,
@@ -19,6 +20,15 @@ import {
 } from 'formal';
 import { CustomFormFieldNumberComponent } from '../custom-form-field-number/custom-form-field-number.component';
 import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accessor-number-field/custom-value-accessor-number-field.component';
+
+function isNameInUse(name: string) {
+  console.log('Checking if name is in use...', name);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(name === 'Shahar Har-Shuv');
+    }, 2000);
+  });
+}
 
 @Component({
   selector: 'app-root',
@@ -48,7 +58,9 @@ export class AppComponent {
 
     return form({
       name: form('Sweeney Todd', [
-        withValidators(required('Name is required')),
+        withValidators(required('Name is required'), async (form) =>
+          (await isNameInUse(form())) ? 'Name is already in use' : null,
+        ),
       ]),
       age: age,
       gender: 'male',
@@ -73,4 +85,7 @@ export class AppComponent {
   save() {
     alert(JSON.stringify(this.form(), null, 2));
   }
+
+  protected readonly isPending = isPending;
+  protected readonly firstErrorMessage = firstErrorMessage;
 }

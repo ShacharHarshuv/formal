@@ -28,6 +28,10 @@
   </button>
   {{ form() | json }}
   <p>Try changing Age to be <18 to see "Partner" getting disabled.</p>
+  <p>
+    Try changing name to "Shahar Har-Shuv" to see an example of async
+    validation.
+  </p>
 </form>
 
 <h2>Angular Material (i.e. CVS interop)</h2>
@@ -39,6 +43,11 @@
       matInput
       placeholder="Ex. John Smith"
     />
+    <mat-hint>{{
+      isPending(form.fields().name)
+        ? "Checking name..."
+        : firstErrorMessage(form.fields().name) ?? "Name is good!"
+    }}</mat-hint>
   </mat-form-field>
   <mat-form-field>
     <mat-label>Age</mat-label>
