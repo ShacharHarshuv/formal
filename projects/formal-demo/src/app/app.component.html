@@ -1,5 +1,9 @@
 <h1>Formal Demo</h1>
 
+<button (click)="reset()">Reset</button>
+Click here to reset form to is original state (i.e. untouched, pristine, and
+with the default values)
+
 <h2>Native Controls</h2>
 <form>
   <label>Name</label>
@@ -89,6 +93,8 @@
 
 <h2>Custom CVA</h2>
 <app-custom-value-accessor-number-field [formField]="form.fields().age" />
+<pre>Dirty: {{ isDirty(form.fields().age) }}</pre>
 
 <h2>Custom FormField Component</h2>
 <app-custom-form-field-number [formField]="form.fields().age" />
+<pre>Dirty: {{ isDirty(form.fields().age) }}</pre>

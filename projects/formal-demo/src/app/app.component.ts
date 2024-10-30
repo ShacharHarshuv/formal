@@ -11,11 +11,13 @@ import {
   firstErrorMessage,
   form,
   formalDirectives,
+  isDirty,
   isPending,
   isValid,
   min,
   nullable,
   required,
+  reset,
   withValidators,
 } from 'formal';
 import { CustomFormFieldNumberComponent } from '../custom-form-field-number/custom-form-field-number.component';
@@ -57,7 +59,7 @@ export class AppComponent {
     ]);
 
     return form({
-      name: form('Sweeney Todd', [
+      name: form('', [
         withValidators(required('Name is required'), async (form) =>
           (await isNameInUse(form())) ? 'Name is already in use' : null,
         ),
@@ -78,6 +80,8 @@ export class AppComponent {
     });
   })();
 
+  private _initialValue = this.form();
+
   isValid = computed(() => isValid(this.form));
 
   disabledReason = computed(() => firstErrorMessage(this.form) ?? '');
@@ -88,4 +92,9 @@ export class AppComponent {
 
   protected readonly isPending = isPending;
   protected readonly firstErrorMessage = firstErrorMessage;
+  protected readonly isDirty = isDirty;
+
+  reset() {
+    reset(this.form, this._initialValue);
+  }
 }

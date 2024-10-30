@@ -17,11 +17,11 @@ export class NumberInputFormFieldDirective extends FormFieldDirective<
     const { value } = $event.target as HTMLInputElement;
 
     if (value === '') {
-      this.form?.set(null);
+      this.viewValueChange(null);
       return;
     }
 
-    this.form?.set(+value);
+    this.viewValueChange(+value);
   }
 
   constructor() {

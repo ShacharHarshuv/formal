@@ -16,7 +16,7 @@ export class NativeStringFormFieldDirective extends FormFieldDirective<string> {
 
   @HostListener('input', ['$event'])
   onInput($event: InputEvent): void {
-    this.form?.set(($event.target as HTMLInputElement).value);
+    this.viewValueChange(($event.target as HTMLInputElement).value);
   }
 
   constructor() {

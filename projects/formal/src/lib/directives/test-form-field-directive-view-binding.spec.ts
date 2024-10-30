@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Form, FormValue, form } from 'formal';
+import { Form, FormValue, form, isDirty } from 'formal';
 import { disabledIf } from '../form/state/disabled/disabled';
 
 export function testFormFieldDirectiveViewBinding<T extends FormValue>({
@@ -28,6 +28,7 @@ export function testFormFieldDirectiveViewBinding<T extends FormValue>({
 
     it('should display initial value', () => {
       expect(viewInterface.viewValue()).toEqual(initialValue);
+      expect(isDirty(viewInterface.form())).toBe(false);
     });
 
     newValues.forEach((newValue) => {
@@ -36,12 +37,14 @@ export function testFormFieldDirectiveViewBinding<T extends FormValue>({
           viewInterface.form().set(newValue);
           viewInterface.fixture().detectChanges();
           expect(viewInterface.viewValue()).toEqual(newValue);
+          expect(isDirty(viewInterface.form())).toBe(false);
         });
 
         it('should view -> form', () => {
           viewInterface.setViewValue(newValue);
           viewInterface.fixture().detectChanges();
           expect(viewInterface.form()()).toEqual(newValue);
+          expect(isDirty(viewInterface.form())).toBe(true);
         });
       });
     });

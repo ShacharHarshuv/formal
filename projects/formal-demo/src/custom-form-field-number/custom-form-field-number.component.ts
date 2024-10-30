@@ -11,7 +11,7 @@ export class CustomFormFieldNumberComponent extends FormFieldDirective<
   number | null
 > {
   add(diff: number) {
-    this.form?.update((value) => (value ?? 0) + diff);
+    this.updateViewValue((value) => (value ?? 0) + diff);
   }
 
   constructor() {

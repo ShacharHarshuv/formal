@@ -4,9 +4,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { disabledIf, formalDirectives, required, withValidators } from 'formal';
-import { Form, FormValue, form } from '../../form';
+import { Form, form } from '../../form';
 
-function createComponentFixtureWithForm<T extends FormValue>(form: Form<T>) {
+function createComponentFixtureWithForm(form: Form<string>) {
   @Component({
     selector: 'app-root',
     template: `
@@ -36,7 +36,15 @@ function createComponentFixtureWithForm<T extends FormValue>(form: Form<T>) {
   TestBed.flushEffects();
   fixture.detectChanges();
 
-  return fixture;
+  return Object.assign(fixture, {
+    changeValue(value: string) {
+      const inputElm = fixture.nativeElement.querySelector('input');
+      inputElm.value = value;
+      inputElm.dispatchEvent(new Event('input'));
+      TestBed.flushEffects();
+      fixture.detectChanges();
+    },
+  });
 }
 
 describe('angular material compatibility', () => {
@@ -53,7 +61,13 @@ describe('angular material compatibility', () => {
     );
     expect(
       fixture.nativeElement.querySelector('.mdc-floating-label--required'),
-    ).toBeTruthy();
+    ).not.toBeTruthy();
+
+    fixture.changeValue(''); // todo: change to "touch" action later
+
+    expect(
+      fixture.nativeElement.querySelector('mat-form-field').classList,
+    ).toContain('mat-form-field-invalid');
   });
 
   it('valid', () => {
@@ -64,12 +78,25 @@ describe('angular material compatibility', () => {
     expect(
       fixture.nativeElement.querySelector('mat-form-field').classList,
     ).not.toContain('mat-form-field-invalid');
+
+    fixture.changeValue('Hello, World!'); // todo: change to "touch" action later
+
+    expect(
+      fixture.nativeElement.querySelector('mat-form-field').classList,
+    ).not.toContain('mat-form-field-invalid');
   });
 
   it('invalid', () => {
     const fixture = createComponentFixtureWithForm(
       form('', [withValidators(() => 'Error!')]),
     );
+
+    // should not have invalid indication initially
+    expect(
+      fixture.nativeElement.querySelector('mat-form-field').classList,
+    ).not.toContain('mat-form-field-invalid');
+
+    fixture.changeValue('Hello, World!'); // todo: change to "touch" action later
 
     expect(
       fixture.nativeElement.querySelector('mat-form-field').classList,

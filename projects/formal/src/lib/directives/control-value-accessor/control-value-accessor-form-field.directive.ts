@@ -17,6 +17,7 @@ import {
 } from '@angular/forms';
 import { ownValidationErrors, validators } from '../../form';
 import { FormValue } from '../../form/form';
+import { isDirty } from '../../form/state/dirty/dirty';
 import { isDisabled } from '../../form/state/disabled/disabled';
 import { FormFieldDirective } from '../form-field.directive';
 import { selectValueAccessor } from './select-value-accessor';
@@ -75,7 +76,7 @@ export class ControlValueAccessorFormFieldDirective<
 
       // vca -> form
       this._valueAccessor()?.registerOnChange((value: T) => {
-        this.form?.set(value);
+        this.viewValueChange(value);
       });
     });
 
@@ -95,7 +96,21 @@ export class ControlValueAccessorFormFieldDirective<
 
     effect(() => {
       formControl.setValue(this.form?.());
-      formControl.markAsTouched(); // todo: we need to separate this once we handle this state
+      if (formControl.errors !== errors()) {
+        // set value can undesirably clear validations errors
+        formControl.setErrors(errors());
+      }
+    });
+
+    effect(() => {
+      const dirty = this.form ? isDirty(this.form) : false;
+      if (dirty) {
+        formControl.markAsDirty();
+        formControl.markAsTouched(); // todo: we need to separate this once we handle this state
+      } else {
+        formControl.markAsPristine();
+        formControl.markAsUntouched();
+      }
     });
 
     const pseudoValidators = computed(() => {
@@ -122,7 +137,9 @@ export class ControlValueAccessorFormFieldDirective<
     });
 
     effect(() => {
-      formControl.setErrors(errors());
+      if (formControl.errors !== errors()) {
+        formControl.setErrors(errors());
+      }
     });
 
     // todo: forward untouched, touched, pristine, dirty, and pe
