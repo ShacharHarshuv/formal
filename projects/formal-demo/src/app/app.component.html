@@ -11,12 +11,11 @@ with the default values)
   <input [formField]="form.fields().name" />
   <label>Age</label>
   <input [formField]="form.fields().age" type="number" />
-  <!--TODO: support select-->
-  <!--  <label>Gender</label>-->
-  <!--  <select [formField]="form.fields().gender">-->
-  <!--    <option value="male">Male</option>-->
-  <!--    <option value="female">Female</option>-->
-  <!--  </select>-->
+  <label>Gender</label>
+  <select [formField]="form.fields().gender">
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select>
   <label>Partner</label>
   <input
     [formField]="form.fields().partner"
