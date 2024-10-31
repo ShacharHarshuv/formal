@@ -21,6 +21,8 @@ with the default values)
     [formField]="form.fields().partner"
     [title]="form.fields().partner | disabledHint"
   />
+  <label>Range</label>
+  <input [formField]="form.fields().range" type="range" />
   <button
     [disabled]="!isValid()"
     [title]="disabledReason()"
@@ -29,7 +31,7 @@ with the default values)
   >
     Save
   </button>
-  {{ form() | json }}
+  <pre>{{ form() | json }}</pre>
   <p>Try changing Age to be <18 to see "Partner" getting disabled.</p>
   <p>
     Try changing name to "Shahar Har-Shuv" to see an example of async

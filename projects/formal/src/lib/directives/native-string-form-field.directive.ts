@@ -8,7 +8,7 @@ import { injectSetProperty } from './set-property';
 
 @Directive({
   selector:
-    'input:not([type="checkbox"]):not([type="number"])[formField],textarea[formField]',
+    'input[type="text"][formField],input:not([type])[formField],textarea[formField]',
   standalone: true,
   host: {
     '(blur)': 'onTouched()',

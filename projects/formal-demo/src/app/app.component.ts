@@ -65,6 +65,7 @@ export class AppComponent {
         ),
       ]),
       age: age,
+      range: 0,
       gender: form<'male' | 'female'>('male'),
       partner: form('', [
         disabledIf(() => {
