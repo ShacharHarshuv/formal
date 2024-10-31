@@ -39,6 +39,12 @@ export function createComponentFixtureWithForm(form: Form<string>) {
         TestBed.flushEffects();
         fixture.detectChanges();
       },
+      touch() {
+        const inputElm = fixture.nativeElement.querySelector('input');
+        inputElm.dispatchEvent(new Event('blur'));
+        TestBed.flushEffects();
+        fixture.detectChanges();
+      },
     }),
     fixture.nativeElement.querySelector('input') as HTMLInputElement,
   ] as const;

@@ -10,6 +10,9 @@ import { injectSetProperty } from './set-property';
   selector:
     'input:not([type="checkbox"]):not([type="number"])[formField],textarea[formField]',
   standalone: true,
+  host: {
+    '(blur)': 'onTouched()',
+  },
 })
 export class NativeStringFormFieldDirective extends FormFieldDirective<string> {
   readonly setProperty = injectSetProperty();

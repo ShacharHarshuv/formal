@@ -50,6 +50,9 @@ describe('NativeStringFormFieldDirective', () => {
               element().value = value;
               element().dispatchEvent(new Event('input'));
             },
+            touch() {
+              element().dispatchEvent(new Event('blur'));
+            },
           };
         },
       });

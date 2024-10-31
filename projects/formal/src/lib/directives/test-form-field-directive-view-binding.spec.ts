@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { Form, FormValue, form, isDirty } from 'formal';
 import { disabledIf } from '../form/state/disabled/disabled';
+import { isTouched } from '../form/state/touched/touched';
 
 export function testFormFieldDirectiveViewBinding<T extends FormValue>({
   initialValue,
@@ -17,6 +18,7 @@ export function testFormFieldDirectiveViewBinding<T extends FormValue>({
       detectChanges(): void;
     };
     setViewValue: (value: T) => void;
+    touch: () => void;
   };
 }) {
   let viewInterface: ReturnType<typeof create>;
@@ -47,6 +49,12 @@ export function testFormFieldDirectiveViewBinding<T extends FormValue>({
           expect(isDirty(viewInterface.form())).toBe(true);
         });
       });
+    });
+
+    it('should be marked as touched', () => {
+      viewInterface.touch();
+      viewInterface.fixture().detectChanges();
+      expect(isTouched(viewInterface.form())).toBe(true);
     });
   });
 

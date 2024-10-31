@@ -19,6 +19,7 @@ import { ownValidationErrors, validators } from '../../form';
 import { FormValue } from '../../form/form';
 import { isDirty } from '../../form/state/dirty/dirty';
 import { isDisabled } from '../../form/state/disabled/disabled';
+import { isTouched } from '../../form/state/touched/touched';
 import { FormFieldDirective } from '../form-field.directive';
 import { selectValueAccessor } from './select-value-accessor';
 
@@ -61,25 +62,25 @@ export class ControlValueAccessorFormFieldDirective<
       }),
     );
 
+    // form -> vca
+    this._onChange((value: T) => {
+      this._valueAccessor()?.writeValue(value);
+    });
+
+    // vca -> form
     effect(() => {
-      if (!this.form) {
-        return;
-      }
-
-      const currentValue = this.form();
-      currentValue && this._valueAccessor()?.writeValue(currentValue);
-
-      // form -> vca
-      this._onChange((value: T) => {
-        this._valueAccessor()?.writeValue(value);
-      });
-
-      // vca -> form
       this._valueAccessor()?.registerOnChange((value: T) => {
         this.viewValueChange(value);
       });
     });
 
+    effect(() => {
+      this._valueAccessor()?.registerOnTouched(() => {
+        this.onTouched();
+      });
+    });
+
+    // disabled
     const shouldDisable = computed(() =>
       this.form ? isDisabled(this.form) : false,
     );
@@ -106,9 +107,16 @@ export class ControlValueAccessorFormFieldDirective<
       const dirty = this.form ? isDirty(this.form) : false;
       if (dirty) {
         formControl.markAsDirty();
-        formControl.markAsTouched(); // todo: we need to separate this once we handle this state
       } else {
         formControl.markAsPristine();
+      }
+    });
+
+    effect(() => {
+      const touched = this.form ? isTouched(this.form) : false;
+      if (touched) {
+        formControl.markAsTouched();
+      } else {
         formControl.markAsUntouched();
       }
     });

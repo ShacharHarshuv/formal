@@ -1,6 +1,7 @@
 import { Directive, effect, input } from '@angular/core';
 import { Form, FormValue } from 'formal';
 import { setIsDirty } from '../form/state/dirty/dirty';
+import { setIsTouched } from '../form/state/touched/touched';
 
 /**
  * Generic class for any directive that plugs into the formField input
@@ -45,6 +46,10 @@ export abstract class FormFieldDirective<T extends FormValue> {
   viewValueChange(value: T) {
     this.form?.set(value);
     this.form && setIsDirty(this.form, true);
+  }
+
+  onTouched() {
+    this.form && setIsTouched(this.form, true);
   }
 
   updateViewValue(value: (prev: T) => T) {

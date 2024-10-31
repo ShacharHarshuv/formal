@@ -11,6 +11,6 @@ form {
   padding: 30px;
 }
 
-:not(mat-form-field *).ng-invalid:not(form) {
+:not(mat-form-field *).ng-invalid.ng-touched:not(form) {
   border-left: 5px solid #a94442; /* red */
 }

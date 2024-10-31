@@ -34,7 +34,6 @@ abstract class AbstractCustomInputComponent implements ControlValueAccessor {
     const value = ($event.target as HTMLInputElement).value;
     this.value = value;
     this.onChange(value);
-    this.onTouched();
   }
 }
 
@@ -44,6 +43,7 @@ abstract class AbstractCustomInputComponent implements ControlValueAccessor {
     [value]="value"
     [disabled]="disabled()"
     (input)="onInput($event)"
+    (blur)="onTouched()"
   />`,
   providers: [
     {
@@ -66,6 +66,7 @@ export class CustomInputAccessorProvidedComponent extends AbstractCustomInputCom
       [value]="value"
       [disabled]="disabled()"
       (input)="onInput($event)"
+      (blur)="onTouched()"
     />
     Disabled: {{ disabled() }}`,
   standalone: true,
@@ -137,6 +138,10 @@ function test(name: string, customControlComp: Type<ControlValueAccessor>) {
             const input = fixture.nativeElement.querySelector('input');
             input.value = value;
             input.dispatchEvent(new Event('input'));
+          },
+          touch() {
+            const input = fixture.nativeElement.querySelector('input');
+            input.dispatchEvent(new Event('blur'));
           },
         };
       },

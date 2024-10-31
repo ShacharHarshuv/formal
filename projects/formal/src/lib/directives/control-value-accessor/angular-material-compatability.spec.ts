@@ -44,6 +44,12 @@ function createComponentFixtureWithForm(form: Form<string>) {
       TestBed.flushEffects();
       fixture.detectChanges();
     },
+    touch() {
+      const inputElm = fixture.nativeElement.querySelector('input');
+      inputElm.dispatchEvent(new Event('blur'));
+      TestBed.flushEffects();
+      fixture.detectChanges();
+    },
   });
 }
 
@@ -63,7 +69,7 @@ describe('angular material compatibility', () => {
       fixture.nativeElement.querySelector('.mdc-floating-label--required'),
     ).not.toBeTruthy();
 
-    fixture.changeValue(''); // todo: change to "touch" action later
+    fixture.touch();
 
     expect(
       fixture.nativeElement.querySelector('mat-form-field').classList,
@@ -79,7 +85,7 @@ describe('angular material compatibility', () => {
       fixture.nativeElement.querySelector('mat-form-field').classList,
     ).not.toContain('mat-form-field-invalid');
 
-    fixture.changeValue('Hello, World!'); // todo: change to "touch" action later
+    fixture.touch();
 
     expect(
       fixture.nativeElement.querySelector('mat-form-field').classList,
@@ -96,7 +102,7 @@ describe('angular material compatibility', () => {
       fixture.nativeElement.querySelector('mat-form-field').classList,
     ).not.toContain('mat-form-field-invalid');
 
-    fixture.changeValue('Hello, World!'); // todo: change to "touch" action later
+    fixture.touch();
 
     expect(
       fixture.nativeElement.querySelector('mat-form-field').classList,

@@ -48,6 +48,9 @@ describe(NumberInputFormFieldDirective.name, () => {
           element().value = value === null ? '' : value.toString();
           element().dispatchEvent(new Event('input'));
         },
+        touch() {
+          element().dispatchEvent(new Event('blur'));
+        },
       };
     },
   });
