@@ -27,6 +27,15 @@ with the default values)
   />
   <label>Range</label>
   <input [formField]="form.fields().range" type="range" />
+  <label>Radio Buttons</label>
+  <label>
+    <input [formField]="form.fields().gender" type="radio" value="male" />
+    Male
+  </label>
+  <label>
+    <input [formField]="form.fields().gender" type="radio" value="female" />
+    Female
+  </label>
   <button
     [disabled]="!isValid()"
     [title]="disabledReason()"

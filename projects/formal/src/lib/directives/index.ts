@@ -6,5 +6,6 @@ export * from './form-field-touched.directive';
 export * from './form-field-validation.directive';
 export * from './native-string-form-field.directive';
 export * from './number-input-form-field.directive';
+export * from './radio-form-field.directive';
 export * from './range-form-field.directive';
 export * from './select-form-field.directive';
