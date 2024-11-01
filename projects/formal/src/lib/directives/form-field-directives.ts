@@ -8,6 +8,7 @@ import { NumberInputFormFieldDirective } from './number-input-form-field.directi
 import { RadioFormFieldDirective } from './radio-form-field.directive';
 import { RangeFormFieldDirective } from './range-form-field.directive';
 import { SelectFormFieldDirective } from './select-form-field.directive';
+import { SelectMultipleFormFieldDirective } from './select-multiple-form-field.directive';
 
 export const formalDirectives = [
   ControlValueAccessorFormFieldDirective,
@@ -20,4 +21,5 @@ export const formalDirectives = [
   RangeFormFieldDirective,
   CheckboxFormFieldDirective,
   RadioFormFieldDirective,
+  SelectMultipleFormFieldDirective,
 ];

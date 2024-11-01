@@ -83,6 +83,7 @@ export class AppComponent {
             : null;
         }),
       ]),
+      multipleSelect: form<('a' | 'b' | 'c')[]>(['a']),
     });
   })();
 

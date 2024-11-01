@@ -36,6 +36,12 @@ with the default values)
     <input [formField]="form.fields().gender" type="radio" value="female" />
     Female
   </label>
+  <label> Multiple Select </label>
+  <select [formField]="form.fields().multipleSelect" multiple>
+    <option value="a">A</option>
+    <option value="b">B</option>
+    <option value="c">C</option>
+  </select>
   <button
     [disabled]="!isValid()"
     [title]="disabledReason()"

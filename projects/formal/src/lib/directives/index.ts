@@ -9,3 +9,4 @@ export * from './number-input-form-field.directive';
 export * from './radio-form-field.directive';
 export * from './range-form-field.directive';
 export * from './select-form-field.directive';
+export * from './select-multiple-form-field.directive';
