@@ -16,6 +16,10 @@ with the default values)
     <option value="male">Male</option>
     <option value="female">Female</option>
   </select>
+  <label>
+    <input [formField]="form.fields().preferNotToSay" type="checkbox" />
+    Prefer not to say</label
+  >
   <label>Partner</label>
   <input
     [formField]="form.fields().partner"

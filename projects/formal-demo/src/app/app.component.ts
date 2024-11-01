@@ -58,6 +58,8 @@ export class AppComponent {
       withValidators(min(13, 'Must be at least 13')),
     ]);
 
+    const preferNotToSay = form(false);
+
     return form({
       name: form('', [
         withValidators(required('Name is required'), async (form) =>
@@ -66,7 +68,10 @@ export class AppComponent {
       ]),
       age: age,
       range: 0,
-      gender: form<'male' | 'female'>('male'),
+      gender: form<'male' | 'female'>('male', [
+        disabledIf(() => preferNotToSay()),
+      ]),
+      preferNotToSay: preferNotToSay,
       partner: form('', [
         disabledIf(() => {
           if (age() === null) {

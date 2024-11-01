@@ -1,3 +1,4 @@
+import { CheckboxFormFieldDirective } from './checkbox-form-field.directive';
 import { ControlValueAccessorFormFieldDirective } from './control-value-accessor/control-value-accessor-form-field.directive';
 import { FormFieldDirtyDirective } from './form-field-dirty.directive';
 import { FormFieldTouchedDirective } from './form-field-touched.directive';
@@ -16,4 +17,5 @@ export const formalDirectives = [
   FormFieldTouchedDirective,
   SelectFormFieldDirective,
   RangeFormFieldDirective,
+  CheckboxFormFieldDirective,
 ];

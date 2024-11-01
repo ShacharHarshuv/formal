@@ -1,3 +1,4 @@
+export * from './checkbox-form-field.directive';
 export * from './control-value-accessor/control-value-accessor-form-field.directive';
 export * from './form-field-directives';
 export * from './form-field-dirty.directive';
