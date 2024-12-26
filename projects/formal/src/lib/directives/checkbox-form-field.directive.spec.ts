@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Form, form, formalDirectives } from 'formal';
+import { WritableForm, form, formalDirectives } from 'formal';
 import { CheckboxFormFieldDirective } from './checkbox-form-field.directive';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
@@ -15,7 +15,7 @@ describe(CheckboxFormFieldDirective.name, () => {
         standalone: true,
       })
       class TestComponent {
-        readonly myForm: Form<boolean> = form(...args);
+        readonly myForm: WritableForm<boolean> = form(...args);
       }
 
       TestBed.configureTestingModule({

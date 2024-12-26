@@ -1,17 +1,17 @@
-import { Form, FormValue } from 'formal';
+import { FormValue, WritableForm } from 'formal';
 import { map } from 'lodash';
-import { ArrayFormValue, PrimitiveFormValue, ReadonlyForm } from '../form';
+import { ArrayFormValue, Form, PrimitiveFormValue } from '../form';
 
 export interface FieldDescriptor<
   T extends FormValue,
   Key extends string | number = string | number,
 > {
-  form: Form<T>;
+  form: WritableForm<T>;
   position: Key;
 }
 
 export function fieldsDescriptors<T extends FormValue>(
-  form: ReadonlyForm<T>,
+  form: Form<T>,
 ): T extends PrimitiveFormValue
   ? []
   : T extends ArrayFormValue
@@ -34,5 +34,8 @@ export function fieldsDescriptors<T extends FormValue>(
   }
 
   // @ts-ignore
-  return map(fields, (form, position) => ({ form: form as Form, position }));
+  return map(fields, (form, position) => ({
+    form: form as WritableForm,
+    position,
+  }));
 }

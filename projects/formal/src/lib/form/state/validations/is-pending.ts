@@ -1,6 +1,6 @@
 import { PENDING_VALIDATION, validationStates } from 'formal';
-import { ReadonlyForm } from '../../form';
+import { Form } from '../../form';
 
-export function isPending(form: ReadonlyForm) {
+export function isPending(form: Form) {
   return validationStates(form).some((state) => state === PENDING_VALIDATION);
 }

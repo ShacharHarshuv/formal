@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   form,
-  Form,
   formalDirectives,
   NumberInputFormFieldDirective,
+  WritableForm,
 } from 'formal';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
@@ -19,7 +19,7 @@ describe(NumberInputFormFieldDirective.name, () => {
         standalone: true,
       })
       class TestComponent {
-        readonly myForm: Form<number | null> = form(...args);
+        readonly myForm: WritableForm<number | null> = form(...args);
       }
 
       TestBed.configureTestingModule({

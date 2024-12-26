@@ -1,7 +1,7 @@
-import { ReadonlyForm } from '../../form';
+import { Form } from '../../form';
 import { validationErrors } from './with-validators';
 
-export function errorMessages(form: ReadonlyForm) {
+export function errorMessages(form: Form) {
   return validationErrors(form)
     .map((error) => {
       if (!error) {

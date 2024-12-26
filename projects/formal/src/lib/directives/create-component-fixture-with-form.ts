@@ -3,9 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Form, formalDirectives } from 'formal';
+import { WritableForm, formalDirectives } from 'formal';
 
-export function createComponentFixtureWithForm(form: Form<string>) {
+export function createComponentFixtureWithForm(form: WritableForm<string>) {
   @Component({
     selector: 'app-root',
     template: ` <input [formField]="myForm" type="text" /> `,

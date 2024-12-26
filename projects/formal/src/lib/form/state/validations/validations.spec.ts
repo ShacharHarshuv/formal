@@ -1,7 +1,7 @@
 import { signal, untracked } from '@angular/core';
 import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { signalSpy } from '../../../utility/signal-spy.spec';
-import { form, Form, ReadonlyForm } from '../../form';
+import { form, Form, WritableForm } from '../../form';
 import { errorMessages } from './error-messages';
 import { firstErrorMessage } from './first-error-message';
 import { isInvalid } from './is-invalid';
@@ -16,7 +16,7 @@ import {
 
 describe('validations', () => {
   it('type enforcement', () => {
-    const numberValidator = (value: Form<number>) => null;
+    const numberValidator = (value: WritableForm<number>) => null;
     // @ts-expect-error
     form('hello', [withValidators(numberValidator)]);
   });
@@ -137,7 +137,7 @@ describe('validations', () => {
   it('two validators reactive', () => {
     const divisibleBy =
       (n: number): ValidationFn<number> =>
-      (form: ReadonlyForm<number>) => {
+      (form: Form<number>) => {
         return form() % n === 0 ? null : `${form()} is not divisible by ${n}`;
       };
 
@@ -252,9 +252,7 @@ describe('validations', () => {
         string | typeof PENDING_VALIDATION | null
       >(null);
 
-      const asyncValidator: ValidationFn<string> = (
-        form: ReadonlyForm<string>,
-      ) => {
+      const asyncValidator: ValidationFn<string> = (form: Form<string>) => {
         if (lastName !== form()) {
           untracked(() => {
             isNameUsedResponse.set(PENDING_VALIDATION);
@@ -268,7 +266,7 @@ describe('validations', () => {
         return isNameUsedResponse();
       };
 
-      let myForm: Form<string>;
+      let myForm: WritableForm<string>;
 
       beforeEach(() => {
         myForm = form('hello', [withValidators(asyncValidator)]);
@@ -320,7 +318,7 @@ describe('validations', () => {
     });
 
     describe('using async function', () => {
-      let myForm: Form<string>;
+      let myForm: WritableForm<string>;
 
       beforeEach(() => {
         myForm = form('hello', [withValidators((form) => isNameUsed(form()))]);
@@ -372,7 +370,7 @@ describe('validations', () => {
 
     describe('aborting async validation', () => {
       let abortSpy: jasmine.Spy;
-      let myForm: Form<string>;
+      let myForm: WritableForm<string>;
 
       beforeEach(() => {
         abortSpy = jasmine.createSpy('abortSpy');

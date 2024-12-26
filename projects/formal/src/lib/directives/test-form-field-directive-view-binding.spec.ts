@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Form, FormValue, form, isDirty } from 'formal';
+import { FormValue, WritableForm, form, isDirty } from 'formal';
 import { disabledIf } from '../form/state/disabled/disabled';
 import { isTouched } from '../form/state/touched/touched';
 
@@ -11,7 +11,7 @@ export function testFormFieldDirectiveViewBinding<T extends FormValue>({
   initialValue: T;
   newValues: T[];
   create(...args: Parameters<typeof form<T>>): {
-    form(): Form<T>;
+    form(): WritableForm<T>;
     viewValue(): T;
     isDisabled(): boolean;
     fixture(): {

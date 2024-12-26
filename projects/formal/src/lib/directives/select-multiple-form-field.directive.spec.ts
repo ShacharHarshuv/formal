@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  Form,
   form,
   formalDirectives,
   SelectMultipleFormFieldDirective,
+  WritableForm,
 } from 'formal';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
@@ -22,7 +22,7 @@ describe(SelectMultipleFormFieldDirective.name, () => {
         standalone: true,
       })
       class TestComponent {
-        readonly myForm: Form<string[]> = form(...args);
+        readonly myForm: WritableForm<string[]> = form(...args);
       }
 
       TestBed.configureTestingModule({

@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 import { SignalSpy, signalSpy } from '../utility/signal-spy.spec';
-import { form, Form, FormValue, ReadonlyForm } from './form';
+import { form, Form, FormValue, WritableForm } from './form';
 
 describe(form.name, () => {
   it('should be created', () => {
@@ -105,15 +105,15 @@ describe(form.name, () => {
   it('types should be invariant', () => {
     let form1 = form(1);
     // @ts-expect-error
-    const form2: Form<number | string> = form1;
+    const form2: WritableForm<number | string> = form1;
     // @ts-expect-error
     form1 = form2;
   });
 
   it('readonly form should be contravariant', () => {
-    let form1: ReadonlyForm<number> = form(1);
+    let form1: Form<number> = form(1);
 
-    const form2: ReadonlyForm<number | string> = form1;
+    const form2: Form<number | string> = form1;
 
     // @ts-expect-error
     form1 = form2;
@@ -175,7 +175,7 @@ describe(form.name, () => {
       },
     ) {
       describe(description, () => {
-        let myForm: Form<any>;
+        let myForm: WritableForm<any>;
         let expectLastValueToEqual: SignalSpy<T>['expectLastValueToEqual'];
 
         beforeEach(() => {
@@ -213,8 +213,8 @@ describe(form.name, () => {
           });
 
           expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-            readonly name: Form<string>;
-            readonly age: Form<number>;
+            readonly name: WritableForm<string>;
+            readonly age: WritableForm<number>;
           }>();
         });
 
@@ -229,12 +229,12 @@ describe(form.name, () => {
           });
 
           expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-            readonly name: Form<string>;
-            readonly address: Form<{
+            readonly name: WritableForm<string>;
+            readonly address: WritableForm<{
               street: string;
               number: number;
             }>;
-            readonly kids: Form<string[]>;
+            readonly kids: WritableForm<string[]>;
           }>();
         });
 
@@ -244,7 +244,7 @@ describe(form.name, () => {
           }>({});
 
           expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-            readonly name?: Form<string>;
+            readonly name?: WritableForm<string>;
           }>();
         });
 
@@ -257,8 +257,8 @@ describe(form.name, () => {
           });
 
           expectTypeOf(myForm.fields()).branded.toEqualTypeOf<{
-            readonly name: Form<string>;
-            readonly partner?: Form<string>;
+            readonly name: WritableForm<string>;
+            readonly partner?: WritableForm<string>;
           }>();
         });
 
@@ -266,7 +266,9 @@ describe(form.name, () => {
           type MyFormValue = { name: string };
           const value: MyFormValue = { name: 'Sweeney' };
           const myForm = form(value);
-          expectTypeOf(myForm).branded.toEqualTypeOf<Form<MyFormValue>>();
+          expectTypeOf(myForm).branded.toEqualTypeOf<
+            WritableForm<MyFormValue>
+          >();
         });
       });
 
@@ -274,7 +276,7 @@ describe(form.name, () => {
         it('primitive value', () => {
           const myForm = form(['one', 'two', 'three']);
           expectTypeOf(myForm.fields()).toEqualTypeOf<
-            readonly Form<string>[]
+            readonly WritableForm<string>[]
           >();
         });
 
@@ -286,7 +288,7 @@ describe(form.name, () => {
           ]);
 
           expectTypeOf(myForm.fields()).toEqualTypeOf<
-            readonly Form<{ name: string }>[]
+            readonly WritableForm<{ name: string }>[]
           >();
         });
       });
@@ -573,14 +575,16 @@ describe(form.name, () => {
       it('records', () => {
         const nameField = form('Sweeney');
         const myForm = form({ name: nameField });
-        expectTypeOf(myForm).branded.toEqualTypeOf<Form<{ name: string }>>();
+        expectTypeOf(myForm).branded.toEqualTypeOf<
+          WritableForm<{ name: string }>
+        >();
         expect(myForm.fields().name).toBe(nameField);
       });
 
       it('arrays', () => {
         const nameField = form('Sweeney');
         const myForm = form([nameField]);
-        expectTypeOf(myForm).branded.toEqualTypeOf<Form<string[]>>();
+        expectTypeOf(myForm).branded.toEqualTypeOf<WritableForm<string[]>>();
         expect(myForm.fields()[0]).toBe(nameField);
       });
     });
@@ -590,7 +594,7 @@ describe(form.name, () => {
         const nameField = form('Sweeney');
         const myForm = form({ name: nameField, age: 42 });
         expectTypeOf(myForm).branded.toEqualTypeOf<
-          Form<{ name: string; age: number }>
+          WritableForm<{ name: string; age: number }>
         >();
         expect(myForm.fields().name).toBe(nameField);
         expect(myForm.fields().age()).toBe(42);
@@ -599,7 +603,7 @@ describe(form.name, () => {
       it('arrays', () => {
         const nameField = form('Sweeney');
         const myForm = form([nameField, 'two']);
-        expectTypeOf(myForm).branded.toEqualTypeOf<Form<string[]>>();
+        expectTypeOf(myForm).branded.toEqualTypeOf<WritableForm<string[]>>();
         expect(myForm.fields()[0]).toBe(nameField);
         expect(myForm.fields()[1]()).toBe('two');
       });
@@ -613,7 +617,7 @@ describe(form.name, () => {
           age: 42,
         });
         expectTypeOf(myForm).branded.toEqualTypeOf<
-          Form<{ name: string; age: number }>
+          WritableForm<{ name: string; age: number }>
         >();
         expect(myForm.fields().name).toBe(nameField);
       });
@@ -621,7 +625,7 @@ describe(form.name, () => {
       it('arrays', () => {
         const nameField = form('Sweeney');
         const myForm = form<string[]>([nameField, 'two']);
-        expectTypeOf(myForm).branded.toEqualTypeOf<Form<string[]>>();
+        expectTypeOf(myForm).branded.toEqualTypeOf<WritableForm<string[]>>();
         expect(myForm.fields()[0]).toBe(nameField);
       });
     });

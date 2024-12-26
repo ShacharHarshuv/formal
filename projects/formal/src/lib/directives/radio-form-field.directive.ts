@@ -6,7 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { Form } from 'formal';
+import { WritableForm } from 'formal';
 import { bindDisableAttributeDirective } from './bind-disable-attribute';
 import { FormFieldDirective } from './form-field.directive';
 import { injectSetProperty } from './set-property';
@@ -14,11 +14,11 @@ import { injectSetProperty } from './set-property';
 @Injectable({ providedIn: 'root' })
 export class RadioControlRegistry {
   private _formToDirectives = new Map<
-    Form<string>,
+    WritableForm<string>,
     RadioFormFieldDirective<any>[]
   >();
 
-  get(form: Form<any>) {
+  get(form: WritableForm<any>) {
     let directives = this._formToDirectives.get(form);
     if (!directives) {
       directives = [];

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Form, form, formalDirectives } from 'formal';
+import { WritableForm, form, formalDirectives } from 'formal';
 import { SelectFormFieldDirective } from './select-form-field.directive';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
@@ -18,7 +18,7 @@ describe(SelectFormFieldDirective.name, () => {
         standalone: true,
       })
       class TestComponent {
-        readonly myForm: Form<string> = form(...args);
+        readonly myForm: WritableForm<string> = form(...args);
       }
 
       TestBed.configureTestingModule({

@@ -20,14 +20,34 @@ export const FORM = Symbol('FORM');
 
 interface BaseForm {
   [FORM]: unknown;
-  [PARENT]?: Form;
+  [PARENT]?: WritableForm;
 }
 
-export interface Form<in out T extends FormValue = FormValue>
+export interface WritableForm<in out T extends FormValue = FormValue>
   extends BaseForm,
     WritableSignal<T> {
   [FORM]: unknown;
-  [PARENT]?: Form;
+  [PARENT]?: WritableForm;
+  fields: T extends Array<infer U>
+    ? Signal<
+        readonly WritableForm<// @ts-ignore
+        U>[]
+      >
+    : T extends object
+      ? Signal<
+          // @ts-ignore
+          { readonly [K in RequiredKeys<T>]: WritableForm<T[K]> } & {
+            // @ts-ignore
+            readonly [K in OptionalKeys<T>]?: WritableForm<Required<T>[K]>;
+          }
+        >
+      : undefined;
+}
+
+// todo: should we have "out" here?
+export interface Form<T extends FormValue = FormValue>
+  extends BaseForm,
+    Signal<T> {
   fields: T extends Array<infer U>
     ? Signal<
         readonly Form<// @ts-ignore
@@ -44,27 +64,7 @@ export interface Form<in out T extends FormValue = FormValue>
       : undefined;
 }
 
-// todo: should we have "out" here?
-export interface ReadonlyForm<T extends FormValue = FormValue>
-  extends BaseForm,
-    Signal<T> {
-  fields: T extends Array<infer U>
-    ? Signal<
-        readonly ReadonlyForm<// @ts-ignore
-        U>[]
-      >
-    : T extends object
-      ? Signal<
-          // @ts-ignore
-          { readonly [K in RequiredKeys<T>]: ReadonlyForm<T[K]> } & {
-            // @ts-ignore
-            readonly [K in OptionalKeys<T>]?: ReadonlyForm<Required<T>[K]>;
-          }
-        >
-      : undefined;
-}
-
-type FormOrValue<T extends FormValue = any> = Form<T> | T;
+type FormOrValue<T extends FormValue = any> = WritableForm<T> | T;
 
 type ArrayFormInit<T extends FormValue = any> = FormOrValue<T>[];
 
@@ -90,17 +90,16 @@ type FormValueFromInit<T extends FormInit> = T extends PrimitiveFormValue
   : T extends ArrayFormInit<infer U>
     ? U[]
     : T extends RecordFormInit
-      ? { [K in RequiredKeys<T>]: T[K] extends Form<infer U> ? U : T[K] } & {
-          [K in OptionalKeys<T>]?: Required<T>[K] extends Form<infer U>
+      ? {
+          [K in RequiredKeys<T>]: T[K] extends WritableForm<infer U> ? U : T[K];
+        } & {
+          [K in OptionalKeys<T>]?: Required<T>[K] extends WritableForm<infer U>
             ? U
             : Required<T>[K];
         }
       : never;
 
-function assignParent(
-  field: ReadonlyForm,
-  getParent: () => ReadonlyForm | undefined,
-) {
+function assignParent(field: Form, getParent: () => Form | undefined) {
   Object.defineProperty(field, PARENT, {
     get: getParent,
   });
@@ -108,7 +107,7 @@ function assignParent(
 
 function formArray<T extends FormValue>(
   initialValue: FormOrValue<T>[],
-  getSelf: () => ReadonlyForm | undefined,
+  getSelf: () => Form | undefined,
 ) {
   const initialFields = initialValue.map((value) => toForm(value));
 
@@ -157,7 +156,7 @@ function formArray<T extends FormValue>(
 
 function isForm<T extends FormValue>(
   formOrValue: FormOrValue<T>,
-): formOrValue is Form<T> {
+): formOrValue is WritableForm<T> {
   return (
     ((formOrValue != null && typeof formOrValue === 'object') ||
       typeof formOrValue === 'function') &&
@@ -165,7 +164,9 @@ function isForm<T extends FormValue>(
   );
 }
 
-function toForm<T extends FormValue>(formOrValue: FormOrValue<T>): Form<T> {
+function toForm<T extends FormValue>(
+  formOrValue: FormOrValue<T>,
+): WritableForm<T> {
   return isForm(formOrValue) ? formOrValue : form<T>(formOrValue as T);
 }
 
@@ -175,7 +176,7 @@ function formRecord<
   },
 >(
   initialValue: { [K in keyof T]: FormOrValue<T[K]> },
-  getSelf: () => ReadonlyForm | undefined,
+  getSelf: () => Form | undefined,
 ) {
   const initialFields = mapValues(initialValue, (value) => toForm(value));
 
@@ -198,7 +199,7 @@ function formRecord<
     }
 
     const currentFields = fields();
-    const missingFields: { [key: string]: Form } = {};
+    const missingFields: { [key: string]: WritableForm } = {};
 
     for (const key in value) {
       if (!(key in currentFields)) {
@@ -245,41 +246,41 @@ function formRecord<
  * @internal
  * */
 export type StateFactory<T extends FormValue = FormValue> = (
-  form: ReadonlyForm<T>,
+  form: Form<T>,
 ) => void;
 
 export function form(
   initialValue: string,
   states?: StateFactory<string>[],
-): Form<string>;
+): WritableForm<string>;
 export function form(
   initialValue: number,
   states?: StateFactory<number>[],
-): Form<number>;
+): WritableForm<number>;
 export function form(
   initialValue: boolean,
   states?: StateFactory<boolean>[],
-): Form<boolean>;
+): WritableForm<boolean>;
 // to conserve the type name in the simple case where the input type could also be used as a value directly
 export function form<T extends FormValue>(
   initialValue: T,
   states?: StateFactory<NoInfer<T>>[],
-): Form<T>;
+): WritableForm<T>;
 // These overload is used for generic inference only, and is not meant to be manually passed by consumers
 export function form<T extends FormInit, Dummy extends never>(
   initialValue: T,
   states?: StateFactory<FormValueFromInit<NoInfer<T>>>[],
-): Form<FormValueFromInit<T>>;
+): WritableForm<FormValueFromInit<T>>;
 // this overload is used for explicitly passing the form value to the generic
 export function form<T extends FormValue>(
   initialValue: T | FormInitFromValue<T>,
   states?: StateFactory<NoInfer<T>>[],
-): Form<T>;
+): WritableForm<T>;
 export function form<T extends FormValue>(
   initialValue: FormInitFromValue<T>,
   states: StateFactory<NoInfer<T>>[] = [],
-): Form<T> {
-  let _form: Form<NoInfer<T>>;
+): WritableForm<T> {
+  let _form: WritableForm<NoInfer<T>>;
 
   const getSelf = () => _form;
 
@@ -301,7 +302,7 @@ export function form<T extends FormValue>(
       set,
       update,
       fields,
-    }) as unknown as Form<T>;
+    }) as unknown as WritableForm<T>;
   })();
 
   _form[FORM] = {};
@@ -311,7 +312,7 @@ export function form<T extends FormValue>(
   return _form;
 }
 
-function f<T extends Form<any>>(form: T) {
+function f<T extends WritableForm<any>>(form: T) {
   return form;
 }
 

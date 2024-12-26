@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Form, form, formalDirectives } from 'formal';
+import { WritableForm, form, formalDirectives } from 'formal';
 import { RangeFormFieldDirective } from './range-form-field.directive';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
@@ -15,7 +15,7 @@ describe(RangeFormFieldDirective.name, () => {
         standalone: true,
       })
       class TestComponent {
-        readonly myForm: Form<number> = form(...args);
+        readonly myForm: WritableForm<number> = form(...args);
       }
 
       TestBed.configureTestingModule({

@@ -1,6 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { expectTypeOf } from 'expect-type';
-import { form, Form, FormValue } from 'formal';
+import { form, FormValue, WritableForm } from 'formal';
 import { isEqual } from 'lodash';
 import { signalSpy } from '../../../utility/signal-spy.spec';
 import { disabledHint, disabledIf, isDisabled } from './disabled';
@@ -85,7 +85,7 @@ describe('Disabled', () => {
   describe('should infer type correctly', () => {
     it('primitive', () => {
       const myForm = form('Sweeney', [disabledIf(true)]);
-      expectTypeOf(myForm).toEqualTypeOf<Form<string>>();
+      expectTypeOf(myForm).toEqualTypeOf<WritableForm<string>>();
     });
 
     it('record', () => {
@@ -95,12 +95,12 @@ describe('Disabled', () => {
         },
         [disabledIf(true)],
       );
-      expectTypeOf(myForm).toEqualTypeOf<Form<{ name: string }>>();
+      expectTypeOf(myForm).toEqualTypeOf<WritableForm<{ name: string }>>();
     });
 
     it('array', () => {
       const myForm = form(['Sweeney'], [disabledIf(true)]);
-      expectTypeOf(myForm).toEqualTypeOf<Form<string[]>>();
+      expectTypeOf(myForm).toEqualTypeOf<WritableForm<string[]>>();
     });
   });
 

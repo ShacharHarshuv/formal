@@ -1,5 +1,5 @@
 import { ValidatorFn as NgValidatorFn } from '@angular/forms';
-import { FormValue, ReadonlyForm } from '../../form';
+import { Form, FormValue } from '../../form';
 
 export const PENDING_VALIDATION = Symbol('PENDING_VALIDATION');
 
@@ -17,7 +17,7 @@ export type ValidationState =
 
 // will be run in reactive context
 export type ValidationFn<Value extends FormValue = FormValue> = (
-  form: ReadonlyForm<Value>,
+  form: Form<Value>,
   abortSignal: AbortSignal,
 ) => ValidationState | Promise<ValidationState>;
 

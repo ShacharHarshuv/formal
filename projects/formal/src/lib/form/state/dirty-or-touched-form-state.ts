@@ -1,6 +1,6 @@
 import { computed, signal, WritableSignal } from '@angular/core';
 import { fieldsDescriptors } from 'formal';
-import { ReadonlyForm } from '../form';
+import { Form } from '../form';
 import { defineFormState } from './form-state';
 
 export function dirtyOrTouchedFormState(name: string) {
@@ -10,7 +10,7 @@ export function dirtyOrTouchedFormState(name: string) {
       computed((): WritableSignal<boolean> | null => signal(false)),
   });
 
-  function get(form: ReadonlyForm): boolean {
+  function get(form: Form): boolean {
     let state = readState(form);
 
     if (!state) {
@@ -23,7 +23,7 @@ export function dirtyOrTouchedFormState(name: string) {
     );
   }
 
-  function set(form: ReadonlyForm, value: boolean) {
+  function set(form: Form, value: boolean) {
     let state = readState(form);
 
     if (!state) {

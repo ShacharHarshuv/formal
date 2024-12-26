@@ -4,9 +4,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { disabledIf, formalDirectives, required, withValidators } from 'formal';
-import { Form, form } from '../../form';
+import { WritableForm, form } from '../../form';
 
-function createComponentFixtureWithForm(form: Form<string>) {
+function createComponentFixtureWithForm(form: WritableForm<string>) {
   @Component({
     selector: 'app-root',
     template: `

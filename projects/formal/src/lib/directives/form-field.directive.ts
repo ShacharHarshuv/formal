@@ -1,5 +1,5 @@
 import { Directive, effect, input } from '@angular/core';
-import { Form, FormValue } from 'formal';
+import { FormValue, WritableForm } from 'formal';
 import { setIsDirty } from '../form/state/dirty/dirty';
 import { setIsTouched } from '../form/state/touched/touched';
 
@@ -11,7 +11,7 @@ export abstract class FormFieldDirective<T extends FormValue> {
   private _subscribers: ((value: T) => void)[] = [];
   private _lastValue: T | null = null;
 
-  readonly _formInput = input<Form<T> | null>(null, {
+  readonly _formInput = input<WritableForm<T> | null>(null, {
     alias: 'formField',
   });
 
