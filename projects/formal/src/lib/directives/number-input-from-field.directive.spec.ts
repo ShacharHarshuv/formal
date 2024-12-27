@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   form,
-  formalDirectives,
+  FormalDirectivesModule,
   NumberInputFormFieldDirective,
   WritableForm,
 } from 'formal';
@@ -15,7 +15,7 @@ describe(NumberInputFormFieldDirective.name, () => {
     create(...args) {
       @Component({
         template: ` <input [formField]="myForm" type="number" /> `,
-        imports: [formalDirectives],
+        imports: [FormalDirectivesModule],
         standalone: true,
       })
       class TestComponent {

@@ -4,7 +4,6 @@ import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
   selector: 'select[multiple][formField]',
-  standalone: true,
   host: {
     '(change)': 'handleChange($event.target)',
     '(blur)': 'onTouched()',

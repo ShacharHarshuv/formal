@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { WritableForm } from '../form';
-import { formalDirectives } from './form-field-directives';
+import { FormalDirectivesModule } from './form-field-directives.module';
 
 export function createComponentFixtureWithForm(form: WritableForm<string>) {
   @Component({
@@ -19,7 +19,7 @@ export function createComponentFixtureWithForm(form: WritableForm<string>) {
     imports: [
       MatFormFieldModule,
       MatInputModule,
-      formalDirectives,
+      FormalDirectivesModule,
       NoopAnimationsModule,
     ],
     declarations: [AppComponent],

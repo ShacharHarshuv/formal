@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { WritableForm, form, formalDirectives } from 'formal';
+import { form, FormalDirectivesModule, WritableForm } from 'formal';
 import { SelectFormFieldDirective } from './select-form-field.directive';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
@@ -14,7 +14,7 @@ describe(SelectFormFieldDirective.name, () => {
           <option value="1">1</option>
           <option value="2">2</option>
         </select>`,
-        imports: [formalDirectives],
+        imports: [FormalDirectivesModule],
         standalone: true,
       })
       class TestComponent {

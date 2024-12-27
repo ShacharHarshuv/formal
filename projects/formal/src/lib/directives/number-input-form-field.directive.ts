@@ -5,7 +5,6 @@ import { injectSetProperty } from './set-property';
 
 @Directive({
   selector: 'input[formField][type="number"]',
-  standalone: true,
   host: {
     '(blur)': 'onTouched()',
   },

@@ -3,8 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { disabledIf, formalDirectives, required, withValidators } from 'formal';
-import { WritableForm, form } from '../../form';
+import {
+  disabledIf,
+  FormalDirectivesModule,
+  required,
+  withValidators,
+} from 'formal';
+import { form, WritableForm } from '../../form';
 
 function createComponentFixtureWithForm(form: WritableForm<string>) {
   @Component({
@@ -24,7 +29,7 @@ function createComponentFixtureWithForm(form: WritableForm<string>) {
     imports: [
       MatFormFieldModule,
       MatInputModule,
-      formalDirectives,
+      FormalDirectivesModule,
       NoopAnimationsModule,
     ],
     declarations: [AppComponent],

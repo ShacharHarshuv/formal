@@ -5,7 +5,6 @@ import { injectSetProperty } from './set-property';
 
 @Directive({
   selector: 'input[type=checkbox][formField]',
-  standalone: true,
   host: {
     '(change)': 'viewValueChange($event.target.checked)',
     '(blur)': 'onTouched()',

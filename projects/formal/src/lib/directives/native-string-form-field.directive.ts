@@ -9,7 +9,6 @@ import { injectSetProperty } from './set-property';
 @Directive({
   selector:
     'input[type="text"][formField],input:not([type])[formField],textarea[formField]',
-  standalone: true,
   host: {
     '(blur)': 'onTouched()',
   },

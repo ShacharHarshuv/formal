@@ -5,7 +5,6 @@ import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
   selector: '[formField]',
-  standalone: true,
   host: {
     '[class.ng-dirty]': 'dirty()',
     '[class.ng-pristine]': '!dirty()',

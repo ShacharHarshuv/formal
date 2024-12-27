@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   form,
-  formalDirectives,
+  FormalDirectivesModule,
   SelectMultipleFormFieldDirective,
   WritableForm,
 } from 'formal';
@@ -18,7 +18,7 @@ describe(SelectMultipleFormFieldDirective.name, () => {
           <option value="1">1</option>
           <option value="2">2</option>
         </select>`,
-        imports: [formalDirectives],
+        imports: [FormalDirectivesModule],
         standalone: true,
       })
       class TestComponent {

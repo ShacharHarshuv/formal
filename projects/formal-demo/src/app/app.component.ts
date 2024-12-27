@@ -10,7 +10,7 @@ import {
   disabledIf,
   firstErrorMessage,
   form,
-  formalDirectives,
+  FormalDirectivesModule,
   isDirty,
   isPending,
   isValid,
@@ -48,8 +48,8 @@ function isNameInUse(name: string) {
     ReactiveFormsModule,
     CustomValueAccessorNumberFieldComponent,
     CustomFormFieldNumberComponent,
-    formalDirectives,
     DisabledHintPipe,
+    FormalDirectivesModule,
   ],
 })
 export class AppComponent {

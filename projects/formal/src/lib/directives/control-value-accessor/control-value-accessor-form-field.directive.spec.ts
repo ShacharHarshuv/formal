@@ -5,7 +5,7 @@ import {
   NG_VALUE_ACCESSOR,
   NgControl,
 } from '@angular/forms';
-import { form, formalDirectives } from 'formal';
+import { form, FormalDirectivesModule } from 'formal';
 import { testFormFieldDirectiveViewBinding } from '../test-form-field-directive-view-binding.spec';
 
 abstract class AbstractCustomInputComponent implements ControlValueAccessor {
@@ -105,7 +105,7 @@ function test(name: string, customControlComp: Type<ControlValueAccessor>) {
           template:
             '<app-custom-input [formField]="myForm"></app-custom-input>',
           standalone: true,
-          imports: [customControlComp, ...formalDirectives],
+          imports: [customControlComp, FormalDirectivesModule],
         })
         class TestComponent {
           readonly myForm = form(...args);

@@ -25,7 +25,6 @@ import { selectValueAccessor } from './select-value-accessor';
 
 @Directive({
   selector: '[formField]',
-  standalone: true,
   providers: [
     {
       provide: NgControl,

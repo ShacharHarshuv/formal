@@ -5,7 +5,6 @@ import { injectSetProperty } from './set-property';
 
 @Directive({
   selector: 'input[type=range][formField]',
-  standalone: true,
   host: {
     '(change)': 'onInput($event)',
     '(input)': 'onInput($event)',

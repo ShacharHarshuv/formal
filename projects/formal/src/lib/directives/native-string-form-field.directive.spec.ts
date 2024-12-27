@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { form, formalDirectives } from 'formal';
+import { form, FormalDirectivesModule } from 'formal';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
 describe('NativeStringFormFieldDirective', () => {
@@ -18,7 +18,7 @@ describe('NativeStringFormFieldDirective', () => {
               <textarea [formField]="myForm"></textarea>
               <!--TODO(#1): add support for non-textual types: range, color, checkbox, radio, file, date, number -->
             `,
-            imports: [formalDirectives],
+            imports: [FormalDirectivesModule],
             standalone: true,
           })
           class TestComponent {

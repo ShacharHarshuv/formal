@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { RadioFormFieldDirective, form, formalDirectives } from 'formal';
+import { form, FormalDirectivesModule, RadioFormFieldDirective } from 'formal';
 import { testFormFieldDirectiveViewBinding } from './test-form-field-directive-view-binding.spec';
 
 describe(RadioFormFieldDirective.name, () => {
@@ -19,7 +19,7 @@ describe(RadioFormFieldDirective.name, () => {
             2
           </label>
         `,
-        imports: [formalDirectives],
+        imports: [FormalDirectivesModule],
         standalone: true,
       })
       class TestComponent {

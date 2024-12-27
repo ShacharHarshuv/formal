@@ -4,7 +4,6 @@ import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
   selector: '[formField]',
-  standalone: true,
   host: {
     '[class.ng-invalid]': 'invalid()',
     '[class.ng-valid]': 'valid()',

@@ -5,7 +5,6 @@ import { injectSetProperty } from './set-property';
 
 @Directive({
   selector: 'select:not([multiple])[formField]',
-  standalone: true,
   host: {
     '(change)': 'viewValueChange($event.target.value)',
     '(blur)': 'onTouched()',
