@@ -1,5 +1,5 @@
 import { Directive, effect, input } from '@angular/core';
-import { FormValue, WritableForm } from 'formal';
+import { FormValue, WritableForm } from '../form';
 import { setIsDirty } from '../form/state/dirty/dirty';
 import { setIsTouched } from '../form/state/touched/touched';
 

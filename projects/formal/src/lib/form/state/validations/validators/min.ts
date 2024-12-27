@@ -1,4 +1,4 @@
-import { ValidationFn } from 'formal';
+import { ValidationFn } from '../validator';
 
 export function min<T extends number | undefined | null | ''>(
   min: number,

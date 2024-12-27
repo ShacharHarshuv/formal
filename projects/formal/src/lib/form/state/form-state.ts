@@ -1,6 +1,5 @@
 import { Signal } from '@angular/core';
-import { FormValue } from 'formal';
-import { FORM, Form, StateFactory } from '../form';
+import { FORM, Form, FormValue, StateFactory } from '../form';
 
 export function defineFormState<
   State,

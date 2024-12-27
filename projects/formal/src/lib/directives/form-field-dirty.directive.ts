@@ -1,5 +1,5 @@
 import { Directive, computed } from '@angular/core';
-import { FormValue } from 'formal';
+import { FormValue } from '../form';
 import { isDirty } from '../form/state/dirty/dirty';
 import { FormFieldDirective } from './form-field.directive';
 

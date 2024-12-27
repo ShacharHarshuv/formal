@@ -1,6 +1,11 @@
-import { FormValue, WritableForm } from 'formal';
 import { map } from 'lodash';
-import { ArrayFormValue, Form, PrimitiveFormValue } from '../form';
+import {
+  ArrayFormValue,
+  Form,
+  FormValue,
+  PrimitiveFormValue,
+  WritableForm,
+} from '../form';
 
 export interface FieldDescriptor<
   T extends FormValue,

@@ -1,5 +1,5 @@
 import { Directive, computed } from '@angular/core';
-import { FormValue, isInvalid, isValid } from 'formal';
+import { FormValue, isInvalid, isValid } from '../form';
 import { FormFieldDirective } from './form-field.directive';
 
 @Directive({

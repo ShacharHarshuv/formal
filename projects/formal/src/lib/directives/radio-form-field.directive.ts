@@ -6,7 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { WritableForm } from 'formal';
+import { WritableForm } from '../form';
 import { bindDisableAttributeDirective } from './bind-disable-attribute';
 import { FormFieldDirective } from './form-field.directive';
 import { injectSetProperty } from './set-property';

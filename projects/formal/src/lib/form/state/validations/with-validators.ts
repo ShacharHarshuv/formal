@@ -1,9 +1,13 @@
 import { computed, signal, Signal, untracked } from '@angular/core';
-import { FormValue, PENDING_VALIDATION, ValidationState } from 'formal';
-import { Form } from '../../form';
-import { fieldsDescriptors } from '../../public-utility/fields-descriptors';
+import { Form, FormValue } from '../../form';
+import { fieldsDescriptors } from '../../public-utility';
 import { defineFormState } from '../form-state';
-import { ValidationError, Validator } from './validator';
+import {
+  PENDING_VALIDATION,
+  ValidationError,
+  ValidationState,
+  Validator,
+} from './validator';
 
 const [readValidations, validationsStateFactory] = defineFormState(
   'validations',

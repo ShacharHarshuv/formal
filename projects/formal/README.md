@@ -1,25 +1,7 @@
 # Formal
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
+Form is a next-generation form libraries for [Angular](https://angular.dev/). It is designed to be an alternative to Angular's `ReactiveFormsModule` which uses modern API and improves on DX.
 
-## Code scaffolding
+This library is currently in alpha stage, and is not ready and well tested for all use cases. Feedback and contributions are welcome.
 
-Run `ng generate component component-name --project formal` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project formal`.
-
-> Note: Don't forget to add `--project formal` or else it will be added to the default project in your `angular.json` file.
-
-## Build
-
-Run `ng build formal` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Publishing
-
-After building your library with `ng build formal`, go to the dist folder `cd dist/formal` and run `npm publish`.
-
-## Running unit tests
-
-Run `ng test formal` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+This implementation is based on proposal in https://github.com/angular/angular/issues/51786.

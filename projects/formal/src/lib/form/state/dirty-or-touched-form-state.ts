@@ -1,6 +1,6 @@
 import { computed, signal, WritableSignal } from '@angular/core';
-import { fieldsDescriptors } from 'formal';
 import { Form } from '../form';
+import { fieldsDescriptors } from '../public-utility';
 import { defineFormState } from './form-state';
 
 export function dirtyOrTouchedFormState(name: string) {
