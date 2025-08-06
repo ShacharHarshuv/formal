@@ -23,33 +23,46 @@ import {
 import { CustomFormFieldNumberComponent } from '../custom-form-field-number/custom-form-field-number.component';
 import { CustomValueAccessorNumberFieldComponent } from '../custom-value-accessor-number-field/custom-value-accessor-number-field.component';
 
-function isNameInUse(name: string) {
+function isNameInUse(name: string, abortSignal: AbortSignal) {
+  if (!name) {
+    return Promise.resolve(false);
+  }
   console.log('Checking if name is in use...', name);
+  let timeout: ReturnType<typeof setTimeout>;
+  abortSignal.addEventListener('abort', () => {
+    clearTimeout(timeout);
+    console.log(`Aborting check for "${name}".`);
+  });
+
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(name === 'Shahar Har-Shuv');
+    timeout = setTimeout(() => {
+      clearTimeout(timeout);
+      const result = name === 'Shahar Har-Shuv';
+      console.log(`Check for "${name}" is ${result ? 'good' : 'bad'}.`);
+
+      resolve(result);
     }, 2000);
   });
 }
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    imports: [
-        JsonPipe,
-        MatFormField,
-        MatFormFieldModule,
-        MatInput,
-        MatButton,
-        MatSelect,
-        MatOption,
-        ReactiveFormsModule,
-        CustomValueAccessorNumberFieldComponent,
-        CustomFormFieldNumberComponent,
-        DisabledHintPipe,
-        FormalDirectivesModule,
-    ]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  imports: [
+    JsonPipe,
+    MatFormField,
+    MatFormFieldModule,
+    MatInput,
+    MatButton,
+    MatSelect,
+    MatOption,
+    ReactiveFormsModule,
+    CustomValueAccessorNumberFieldComponent,
+    CustomFormFieldNumberComponent,
+    DisabledHintPipe,
+    FormalDirectivesModule,
+  ],
 })
 export class AppComponent {
   form = (() => {
@@ -61,8 +74,13 @@ export class AppComponent {
 
     return form({
       name: form('', [
-        withValidators(required('Name is required'), async (form) =>
-          (await isNameInUse(form())) ? 'Name is already in use' : null,
+        withValidators(
+          required('Name is required'),
+          async (form, abortSignal) => {
+            return (await isNameInUse(form(), abortSignal))
+              ? 'Name is already in use'
+              : null;
+          },
         ),
       ]),
       age: age,

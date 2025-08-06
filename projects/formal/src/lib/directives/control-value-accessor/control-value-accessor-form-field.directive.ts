@@ -24,14 +24,14 @@ import { FormFieldDirective } from '../form-field.directive';
 import { selectValueAccessor } from './select-value-accessor';
 
 @Directive({
-    selector: '[formField]',
-    providers: [
-        {
-            provide: NgControl,
-            useExisting: forwardRef(() => ControlValueAccessorFormFieldDirective),
-        },
-    ],
-    standalone: false
+  selector: '[formField]',
+  providers: [
+    {
+      provide: NgControl,
+      useExisting: forwardRef(() => ControlValueAccessorFormFieldDirective),
+    },
+  ],
+  standalone: false,
 })
 export class ControlValueAccessorFormFieldDirective<
   T extends FormValue,
