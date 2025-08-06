@@ -4,12 +4,13 @@ import { FormFieldDirective } from './form-field.directive';
 import { injectSetProperty } from './set-property';
 
 @Directive({
-  selector: 'input[type=range][formField]',
-  host: {
-    '(change)': 'onInput($event)',
-    '(input)': 'onInput($event)',
-    '(blur)': 'onTouched()',
-  },
+    selector: 'input[type=range][formField]',
+    host: {
+        '(change)': 'onInput($event)',
+        '(input)': 'onInput($event)',
+        '(blur)': 'onTouched()',
+    },
+    standalone: false
 })
 export class RangeFormFieldDirective extends FormFieldDirective<number> {
   readonly setProperty = injectSetProperty();

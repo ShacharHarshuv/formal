@@ -10,10 +10,9 @@ describe(CheckboxFormFieldDirective.name, () => {
     newValues: [true],
     create(...args) {
       @Component({
-        template: ` <input [formField]="myForm" type="checkbox" /> `,
-        imports: [FormalDirectivesModule],
-        standalone: true,
-      })
+    template: ` <input [formField]="myForm" type="checkbox" /> `,
+    imports: [FormalDirectivesModule]
+})
       class TestComponent {
         readonly myForm: WritableForm<boolean> = form(...args);
       }

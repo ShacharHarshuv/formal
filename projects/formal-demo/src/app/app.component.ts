@@ -33,24 +33,23 @@ function isNameInUse(name: string) {
 }
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  standalone: true,
-  imports: [
-    JsonPipe,
-    MatFormField,
-    MatFormFieldModule,
-    MatInput,
-    MatButton,
-    MatSelect,
-    MatOption,
-    ReactiveFormsModule,
-    CustomValueAccessorNumberFieldComponent,
-    CustomFormFieldNumberComponent,
-    DisabledHintPipe,
-    FormalDirectivesModule,
-  ],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    imports: [
+        JsonPipe,
+        MatFormField,
+        MatFormFieldModule,
+        MatInput,
+        MatButton,
+        MatSelect,
+        MatOption,
+        ReactiveFormsModule,
+        CustomValueAccessorNumberFieldComponent,
+        CustomFormFieldNumberComponent,
+        DisabledHintPipe,
+        FormalDirectivesModule,
+    ]
 })
 export class AppComponent {
   form = (() => {

@@ -12,7 +12,8 @@ export function pipeSpy<T, U>(
 ) {
   @Component({
     template: `{{ handleValueChange(value | ${pipeName}) }}`,
-  })
+    standalone: false
+})
   class TestComponent {
     currentValue = signal<U | typeof EMPTY>(EMPTY);
 

@@ -48,8 +48,9 @@ export class RadioControlRegistry {
 }
 
 @Directive({
-  selector: 'input[type=radio][formField]',
-  host: { '(change)': 'onCheck()', '(blur)': 'onTouched()' },
+    selector: 'input[type=radio][formField]',
+    host: { '(change)': 'onCheck()', '(blur)': 'onTouched()' },
+    standalone: false
 })
 export class RadioFormFieldDirective<
   T extends string,

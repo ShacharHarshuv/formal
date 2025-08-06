@@ -34,7 +34,10 @@ export function signalSpy<T>(signal: () => T, name: string) {
     }
   }
 
-  @Component({ template: '' })
+  @Component({
+    template: '',
+    standalone: false
+})
   class MyComponent {
     constructor() {
       effect(() => {

@@ -3,11 +3,12 @@ import { FormValue, isInvalid, isValid } from '../form';
 import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
-  selector: '[formField]',
-  host: {
-    '[class.ng-invalid]': 'invalid()',
-    '[class.ng-valid]': 'valid()',
-  },
+    selector: '[formField]',
+    host: {
+        '[class.ng-invalid]': 'invalid()',
+        '[class.ng-valid]': 'valid()',
+    },
+    standalone: false
 })
 export class FormFieldValidationDirective<
   T extends FormValue,

@@ -3,11 +3,12 @@ import { bindDisableAttributeDirective } from './bind-disable-attribute';
 import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
-  selector: 'select[multiple][formField]',
-  host: {
-    '(change)': 'handleChange($event.target)',
-    '(blur)': 'onTouched()',
-  },
+    selector: 'select[multiple][formField]',
+    host: {
+        '(change)': 'handleChange($event.target)',
+        '(blur)': 'onTouched()',
+    },
+    standalone: false
 })
 export class SelectMultipleFormFieldDirective<
   T extends string,

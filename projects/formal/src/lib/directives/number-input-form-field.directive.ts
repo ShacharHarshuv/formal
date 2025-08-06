@@ -4,10 +4,11 @@ import { FormFieldDirective } from './form-field.directive';
 import { injectSetProperty } from './set-property';
 
 @Directive({
-  selector: 'input[formField][type="number"]',
-  host: {
-    '(blur)': 'onTouched()',
-  },
+    selector: 'input[formField][type="number"]',
+    host: {
+        '(blur)': 'onTouched()',
+    },
+    standalone: false
 })
 export class NumberInputFormFieldDirective extends FormFieldDirective<
   number | null

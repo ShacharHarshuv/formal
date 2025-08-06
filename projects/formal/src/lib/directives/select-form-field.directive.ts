@@ -4,11 +4,12 @@ import { FormFieldDirective } from './form-field.directive';
 import { injectSetProperty } from './set-property';
 
 @Directive({
-  selector: 'select:not([multiple])[formField]',
-  host: {
-    '(change)': 'viewValueChange($event.target.value)',
-    '(blur)': 'onTouched()',
-  },
+    selector: 'select:not([multiple])[formField]',
+    host: {
+        '(change)': 'viewValueChange($event.target.value)',
+        '(blur)': 'onTouched()',
+    },
+    standalone: false
 })
 export class SelectFormFieldDirective<
   T extends string,

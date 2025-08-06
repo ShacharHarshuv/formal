@@ -13,14 +13,13 @@ describe('NativeStringFormFieldDirective', () => {
         newValues: ['new'],
         create(...args) {
           @Component({
-            template: `
+    template: `
               <input [formField]="myForm" type="text" />
               <textarea [formField]="myForm"></textarea>
               <!--TODO(#1): add support for non-textual types: range, color, checkbox, radio, file, date, number -->
             `,
-            imports: [FormalDirectivesModule],
-            standalone: true,
-          })
+    imports: [FormalDirectivesModule]
+})
           class TestComponent {
             readonly myForm = form(...args);
           }

@@ -14,10 +14,9 @@ describe(NumberInputFormFieldDirective.name, () => {
     newValues: [2, null],
     create(...args) {
       @Component({
-        template: ` <input [formField]="myForm" type="number" /> `,
-        imports: [FormalDirectivesModule],
-        standalone: true,
-      })
+    template: ` <input [formField]="myForm" type="number" /> `,
+    imports: [FormalDirectivesModule]
+})
       class TestComponent {
         readonly myForm: WritableForm<number | null> = form(...args);
       }

@@ -102,11 +102,9 @@ function test(name: string, customControlComp: Type<ControlValueAccessor>) {
       newValues: ['new'],
       create(...args) {
         @Component({
-          template:
-            '<app-custom-input [formField]="myForm"></app-custom-input>',
-          standalone: true,
-          imports: [customControlComp, FormalDirectivesModule],
-        })
+    template: '<app-custom-input [formField]="myForm"></app-custom-input>',
+    imports: [customControlComp, FormalDirectivesModule]
+})
         class TestComponent {
           readonly myForm = form(...args);
         }

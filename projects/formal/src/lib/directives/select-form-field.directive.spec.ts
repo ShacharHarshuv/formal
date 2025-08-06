@@ -10,13 +10,12 @@ describe(SelectFormFieldDirective.name, () => {
     newValues: ['2'],
     create(...args) {
       @Component({
-        template: ` <select [formField]="myForm">
+    template: ` <select [formField]="myForm">
           <option value="1">1</option>
           <option value="2">2</option>
         </select>`,
-        imports: [FormalDirectivesModule],
-        standalone: true,
-      })
+    imports: [FormalDirectivesModule]
+})
       class TestComponent {
         readonly myForm: WritableForm<string> = form(...args);
       }

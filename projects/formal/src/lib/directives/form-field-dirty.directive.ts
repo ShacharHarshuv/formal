@@ -4,11 +4,12 @@ import { isDirty } from '../form/state/dirty/dirty';
 import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
-  selector: '[formField]',
-  host: {
-    '[class.ng-dirty]': 'dirty()',
-    '[class.ng-pristine]': '!dirty()',
-  },
+    selector: '[formField]',
+    host: {
+        '[class.ng-dirty]': 'dirty()',
+        '[class.ng-pristine]': '!dirty()',
+    },
+    standalone: false
 })
 export class FormFieldDirtyDirective<
   T extends FormValue,

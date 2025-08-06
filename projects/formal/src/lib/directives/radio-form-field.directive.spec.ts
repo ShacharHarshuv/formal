@@ -9,7 +9,7 @@ describe(RadioFormFieldDirective.name, () => {
     newValues: ['2'],
     create(...args) {
       @Component({
-        template: `
+    template: `
           <label>
             <input [formField]="myForm" type="radio" value="1" />
             1
@@ -19,9 +19,8 @@ describe(RadioFormFieldDirective.name, () => {
             2
           </label>
         `,
-        imports: [FormalDirectivesModule],
-        standalone: true,
-      })
+    imports: [FormalDirectivesModule]
+})
       class TestComponent {
         readonly myForm = form(...args);
       }

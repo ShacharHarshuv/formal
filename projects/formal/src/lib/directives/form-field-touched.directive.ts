@@ -4,11 +4,12 @@ import { isTouched } from '../form/state/touched/touched';
 import { FormFieldDirective } from './form-field.directive';
 
 @Directive({
-  selector: '[formField]',
-  host: {
-    '[class.ng-touched]': 'touched()',
-    '[class.ng-untouched]': '!touched()',
-  },
+    selector: '[formField]',
+    host: {
+        '[class.ng-touched]': 'touched()',
+        '[class.ng-untouched]': '!touched()',
+    },
+    standalone: false
 })
 export class FormFieldTouchedDirective<
   T extends FormValue,

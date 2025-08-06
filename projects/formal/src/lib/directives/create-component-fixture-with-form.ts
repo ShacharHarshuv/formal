@@ -10,7 +10,8 @@ export function createComponentFixtureWithForm(form: WritableForm<string>) {
   @Component({
     selector: 'app-root',
     template: ` <input [formField]="myForm" type="text" /> `,
-  })
+    standalone: false
+})
   class AppComponent {
     readonly myForm = form;
   }

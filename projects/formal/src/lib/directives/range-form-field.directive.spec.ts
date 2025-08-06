@@ -10,10 +10,9 @@ describe(RangeFormFieldDirective.name, () => {
     newValues: [2],
     create(...args) {
       @Component({
-        template: ` <input [formField]="myForm" type="range" /> `,
-        imports: [FormalDirectivesModule],
-        standalone: true,
-      })
+    template: ` <input [formField]="myForm" type="range" /> `,
+    imports: [FormalDirectivesModule]
+})
       class TestComponent {
         readonly myForm: WritableForm<number> = form(...args);
       }

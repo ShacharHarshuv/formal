@@ -7,11 +7,11 @@ import { injectSetProperty } from './set-property';
 // also there is a mechanism to distinguish between "built in" CVAs, "default CVA" (last choice) and "custom CVA" (first choice). I'm not sure if we need to make this distinction. It's possible that we need to prevent multiple such directives from applying somehow
 
 @Directive({
-  selector:
-    'input[type="text"][formField],input:not([type])[formField],textarea[formField]',
-  host: {
-    '(blur)': 'onTouched()',
-  },
+    selector: 'input[type="text"][formField],input:not([type])[formField],textarea[formField]',
+    host: {
+        '(blur)': 'onTouched()',
+    },
+    standalone: false
 })
 export class NativeStringFormFieldDirective extends FormFieldDirective<string> {
   readonly setProperty = injectSetProperty();

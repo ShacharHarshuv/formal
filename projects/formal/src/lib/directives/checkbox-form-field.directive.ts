@@ -4,11 +4,12 @@ import { FormFieldDirective } from './form-field.directive';
 import { injectSetProperty } from './set-property';
 
 @Directive({
-  selector: 'input[type=checkbox][formField]',
-  host: {
-    '(change)': 'viewValueChange($event.target.checked)',
-    '(blur)': 'onTouched()',
-  },
+    selector: 'input[type=checkbox][formField]',
+    host: {
+        '(change)': 'viewValueChange($event.target.checked)',
+        '(blur)': 'onTouched()',
+    },
+    standalone: false
 })
 export class CheckboxFormFieldDirective extends FormFieldDirective<boolean> {
   constructor() {

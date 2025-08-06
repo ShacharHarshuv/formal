@@ -20,7 +20,8 @@ function createComponentFixtureWithForm(form: WritableForm<string>) {
         <input [formField]="myForm" matInput />
       </mat-form-field>
     `,
-  })
+    standalone: false
+})
   class AppComponent {
     readonly myForm = form;
   }

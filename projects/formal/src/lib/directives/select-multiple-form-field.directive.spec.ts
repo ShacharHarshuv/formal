@@ -14,13 +14,12 @@ describe(SelectMultipleFormFieldDirective.name, () => {
     newValues: [[], ['2'], ['1', '2']],
     create(...args) {
       @Component({
-        template: ` <select [formField]="myForm" multiple>
+    template: ` <select [formField]="myForm" multiple>
           <option value="1">1</option>
           <option value="2">2</option>
         </select>`,
-        imports: [FormalDirectivesModule],
-        standalone: true,
-      })
+    imports: [FormalDirectivesModule]
+})
       class TestComponent {
         readonly myForm: WritableForm<string[]> = form(...args);
       }
